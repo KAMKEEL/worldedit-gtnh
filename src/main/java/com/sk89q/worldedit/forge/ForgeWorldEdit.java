@@ -46,6 +46,7 @@ import com.sk89q.worldedit.forge.compat.ArchitectureCraftBlockTransformHook;
 import com.sk89q.worldedit.forge.compat.CarpentersBlocksBlockTransformHook;
 import com.sk89q.worldedit.forge.compat.ForgeMultipartCompat;
 import com.sk89q.worldedit.forge.compat.ForgeMultipartExistsCompat;
+import com.sk89q.worldedit.forge.compat.ModRotationBlockTransformHook;
 import com.sk89q.worldedit.forge.compat.NoForgeMultipartCompat;
 import com.sk89q.worldedit.internal.LocalWorldAdapter;
 
@@ -117,6 +118,8 @@ public class ForgeWorldEdit {
             ForgeWorldData.getInstance()
                 .addBlockTransformHook(new CarpentersBlocksBlockTransformHook());
         }
+        ForgeWorldData.getInstance()
+            .addBlockTransformHook(new ModRotationBlockTransformHook());
 
         FMLCommonHandler.instance()
             .bus()
