@@ -168,9 +168,6 @@ public class ModRotationBlockTransformHook implements BlockTransformHook {
     }
 
     private int rotateDoor90(int data) {
-        if ((data & 0x8) != 0) {
-            return data;
-        }
         int extra = data & ~0x3;
         int without = data & 0x3;
         switch (without) {
@@ -188,9 +185,6 @@ public class ModRotationBlockTransformHook implements BlockTransformHook {
     }
 
     private int rotateDoor90Reverse(int data) {
-        if ((data & 0x8) != 0) {
-            return data;
-        }
         int extra = data & ~0x3;
         int without = data & 0x3;
         switch (without) {
