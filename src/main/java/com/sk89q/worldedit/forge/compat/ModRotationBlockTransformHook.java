@@ -64,7 +64,7 @@ public class ModRotationBlockTransformHook implements BlockTransformHook {
             return block;
         }
         Vector rot = affine.getRotations();
-        int ticks = Math.round((float) (rot.getY() / 90));
+        int ticks = Math.round((float) (-rot.getY() / 90));
         if (ticks == 0) {
             return block;
         }
@@ -98,49 +98,73 @@ public class ModRotationBlockTransformHook implements BlockTransformHook {
     }
 
     private int rotateStairs90(int data) {
-        switch (data) {
+        boolean bigMeta = data >= 8;
+        int meta = bigMeta ? data - 8 : data;
+        int result;
+        switch (meta) {
             case 0:
-                return 2;
+                result = 2;
+                break;
             case 1:
-                return 3;
+                result = 3;
+                break;
             case 2:
-                return 1;
+                result = 1;
+                break;
             case 3:
-                return 0;
+                result = 0;
+                break;
             case 4:
-                return 6;
+                result = 6;
+                break;
             case 5:
-                return 7;
+                result = 7;
+                break;
             case 6:
-                return 5;
+                result = 5;
+                break;
             case 7:
-                return 4;
+                result = 4;
+                break;
             default:
-                return data;
+                result = meta;
         }
+        return bigMeta ? result + 8 : result;
     }
 
     private int rotateStairs90Reverse(int data) {
-        switch (data) {
+        boolean bigMeta = data >= 8;
+        int meta = bigMeta ? data - 8 : data;
+        int result;
+        switch (meta) {
             case 2:
-                return 0;
+                result = 0;
+                break;
             case 3:
-                return 1;
+                result = 1;
+                break;
             case 1:
-                return 2;
+                result = 2;
+                break;
             case 0:
-                return 3;
+                result = 3;
+                break;
             case 6:
-                return 4;
+                result = 4;
+                break;
             case 7:
-                return 5;
+                result = 5;
+                break;
             case 5:
-                return 6;
+                result = 6;
+                break;
             case 4:
-                return 7;
+                result = 7;
+                break;
             default:
-                return data;
+                result = meta;
         }
+        return bigMeta ? result + 8 : result;
     }
 
     private int rotateDoor90(int data) {
