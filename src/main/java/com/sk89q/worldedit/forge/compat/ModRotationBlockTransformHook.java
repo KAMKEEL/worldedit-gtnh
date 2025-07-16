@@ -4,9 +4,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockDoor;
 import net.minecraft.block.BlockRotatedPillar;
 import net.minecraft.block.BlockStairs;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.block.BlockTrapDoor;
 
 import com.sk89q.worldedit.Vector;
 import com.sk89q.worldedit.blocks.BaseBlock;
@@ -15,13 +16,15 @@ import com.sk89q.worldedit.math.transform.AffineTransform;
 import com.sk89q.worldedit.math.transform.Transform;
 
 /**
- * Fallback rotation handler for modded stairs and pillar blocks.
+ * Fallback rotation handler for modded stairs, pillars, doors and trap doors.
  */
 public class ModRotationBlockTransformHook implements BlockTransformHook {
 
     private enum Type {
         STAIRS,
-        PILLAR
+        PILLAR,
+        DOOR,
+        TRAP_DOOR
     }
 
     private final Map<Integer, Type> cache = new HashMap<>();
@@ -33,12 +36,17 @@ public class ModRotationBlockTransformHook implements BlockTransformHook {
         Block mcBlock = Block.getBlockById(id);
         Type result = null;
         if (mcBlock != null) {
-            ResourceLocation name = (ResourceLocation) Block.blockRegistry.getNameForObject(mcBlock);
-            if (name != null && !"minecraft".equals(name.getResourceDomain())) {
+            Object identifier = Block.blockRegistry.getNameForObject(mcBlock);
+            String name = identifier == null ? null : identifier.toString();
+            if (name != null && !name.startsWith("minecraft:")) {
                 if (mcBlock instanceof BlockStairs) {
                     result = Type.STAIRS;
                 } else if (mcBlock instanceof BlockRotatedPillar) {
                     result = Type.PILLAR;
+                } else if (mcBlock instanceof BlockDoor) {
+                    result = Type.DOOR;
+                } else if (mcBlock instanceof BlockTrapDoor) {
+                    result = Type.TRAP_DOOR;
                 }
             }
         }
@@ -63,10 +71,19 @@ public class ModRotationBlockTransformHook implements BlockTransformHook {
         int data = block.getData();
         int steps = Math.abs(ticks) % 4;
         for (int i = 0; i < steps; i++) {
-            if (type == Type.STAIRS) {
-                data = ticks > 0 ? rotateStairs90(data) : rotateStairs90Reverse(data);
-            } else {
-                data = rotatePillar90(data); // same both directions
+            switch (type) {
+                case STAIRS:
+                    data = ticks > 0 ? rotateStairs90(data) : rotateStairs90Reverse(data);
+                    break;
+                case PILLAR:
+                    data = rotatePillar90(data); // same both directions
+                    break;
+                case DOOR:
+                    data = ticks > 0 ? rotateDoor90(data) : rotateDoor90Reverse(data);
+                    break;
+                case TRAP_DOOR:
+                    data = ticks > 0 ? rotateTrapdoor90(data) : rotateTrapdoor90Reverse(data);
+                    break;
             }
         }
         block.setData(data);
@@ -121,6 +138,80 @@ public class ModRotationBlockTransformHook implements BlockTransformHook {
                 return 6;
             case 4:
                 return 7;
+            default:
+                return data;
+        }
+    }
+
+    private int rotateDoor90(int data) {
+        if ((data & 0x8) != 0) {
+            return data;
+        }
+        int extra = data & ~0x3;
+        int without = data & 0x3;
+        switch (without) {
+            case 0:
+                return 1 | extra;
+            case 1:
+                return 2 | extra;
+            case 2:
+                return 3 | extra;
+            case 3:
+                return 0 | extra;
+            default:
+                return data;
+        }
+    }
+
+    private int rotateDoor90Reverse(int data) {
+        if ((data & 0x8) != 0) {
+            return data;
+        }
+        int extra = data & ~0x3;
+        int without = data & 0x3;
+        switch (without) {
+            case 1:
+                return 0 | extra;
+            case 2:
+                return 1 | extra;
+            case 3:
+                return 2 | extra;
+            case 0:
+                return 3 | extra;
+            default:
+                return data;
+        }
+    }
+
+    private int rotateTrapdoor90(int data) {
+        int without = data & ~0x3;
+        int orientation = data & 0x3;
+        switch (orientation) {
+            case 0:
+                return 3 | without;
+            case 1:
+                return 2 | without;
+            case 2:
+                return 0 | without;
+            case 3:
+                return 1 | without;
+            default:
+                return data;
+        }
+    }
+
+    private int rotateTrapdoor90Reverse(int data) {
+        int without = data & ~0x3;
+        int orientation = data & 0x3;
+        switch (orientation) {
+            case 3:
+                return 0 | without;
+            case 2:
+                return 1 | without;
+            case 0:
+                return 2 | without;
+            case 1:
+                return 3 | without;
             default:
                 return data;
         }
