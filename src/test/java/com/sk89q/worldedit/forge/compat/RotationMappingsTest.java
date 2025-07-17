@@ -12,6 +12,7 @@ import com.sk89q.worldedit.math.transform.AffineTransform;
 import com.sk89q.worldedit.forge.compat.RotationMappings;
 import com.sk89q.worldedit.forge.compat.RotationUtils;
 import com.sk89q.worldedit.forge.compat.RotationType;
+import com.sk89q.worldedit.forge.compat.ModRotationBlockTransformHook;
 import org.junit.Test;
 
 /** Tests for {@link RotationMappings}. */
@@ -94,5 +95,26 @@ public class RotationMappingsTest {
         int result = RotationUtils.rotateMeta(RotationType.PILLAR, 1, meta);
         assertEquals("pillar axis swapped", 8, result);
         assertEquals("vertical pillar unchanged", 0, RotationUtils.rotateMeta(RotationType.PILLAR, 1, 0));
+    }
+
+    @Test
+    public void testPillarFlip() throws Exception {
+        java.lang.reflect.Method m = ModRotationBlockTransformHook.class.getDeclaredMethod(
+            "rotateTransform", int.class, Map.class, AffineTransform.class);
+        m.setAccessible(true);
+        Map<String,Integer> map = RotationUtils.defaultMetaMap(RotationType.PILLAR);
+        AffineTransform flipX = new AffineTransform();
+        flipX = flipX.scale(-1, 1, 1);
+        int result = (int) m.invoke(new ModRotationBlockTransformHook(), 4, map, flipX);
+        assertEquals("pillar flip keeps axis", 4, result);
+    }
+
+    @Test
+    public void testPillarDefaultMap() {
+        Map<String,Integer> map = RotationUtils.defaultMetaMap(RotationType.PILLAR);
+        assertEquals("pillar default entries", 3, map.size());
+        assertEquals(Integer.valueOf(0), map.get("y"));
+        assertEquals(Integer.valueOf(4), map.get("x"));
+        assertEquals(Integer.valueOf(8), map.get("z"));
     }
 }

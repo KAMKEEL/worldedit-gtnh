@@ -105,7 +105,7 @@ public class ModRotationBlockTransformHook implements BlockTransformHook {
             else if (c.endsWith("_bottom")) c = c.substring(0, c.length() - 7);
             Vector dirVec = DIRS.get(c.toLowerCase());
             if (dirVec == null) continue;
-            double dot = dirVec.normalize().dot(out);
+            double dot = Math.abs(dirVec.normalize().dot(out));
             if (dot > bestDot) {
                 bestDot = dot;
                 best = c;
