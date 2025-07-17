@@ -53,4 +53,31 @@ public class RotationMappingsTest {
         int result = RotationUtils.rotateMeta(RotationType.DOOR, 1, meta);
         assertEquals("door open meta rotated", 5, result);
     }
+
+    @Test
+    public void testDoorDefaultMap() {
+        Map<String,Integer> map = RotationUtils.defaultMetaMap(RotationType.DOOR);
+        assertEquals("door map entries", 16, map.size());
+        assertEquals(Integer.valueOf(0), map.get("north_bottom_closed"));
+        assertEquals(Integer.valueOf(4), map.get("north_bottom_open"));
+        assertEquals(Integer.valueOf(8), map.get("north_top_closed"));
+        assertEquals(Integer.valueOf(12), map.get("north_top_open"));
+    }
+
+    @Test
+    public void testTrapdoorDefaultMap() {
+        Map<String,Integer> map = RotationUtils.defaultMetaMap(RotationType.TRAP_DOOR);
+        assertEquals("trapdoor map entries", 16, map.size());
+        assertEquals(Integer.valueOf(0), map.get("north_bottom_closed"));
+        assertEquals(Integer.valueOf(4), map.get("north_bottom_open"));
+        assertEquals(Integer.valueOf(8), map.get("north_top_closed"));
+        assertEquals(Integer.valueOf(12), map.get("north_top_open"));
+    }
+
+    @Test
+    public void testStairsBigMetaRotation() {
+        int meta = 10; // meta >= 8
+        int result = RotationUtils.rotateMeta(RotationType.STAIRS, 1, meta);
+        assertEquals("big meta stairs rotated", 9, result);
+    }
 }

@@ -206,10 +206,10 @@ public final class RotationUtils {
                 fillDirectional(map, 4, RotationUtils::rotateStairs90, "_top");
                 break;
             case DOOR:
-                fillDirectional(map, 0, RotationUtils::rotateDoor90, "");
+                fillDoor(map);
                 break;
             case TRAP_DOOR:
-                fillDirectional(map, 0, RotationUtils::rotateTrapdoor90, "");
+                fillTrapDoor(map);
                 break;
             case FENCE_GATE:
                 fillDirectional(map, 0, RotationUtils::rotateFenceGate90, "");
@@ -231,6 +231,30 @@ public final class RotationUtils {
         for (String dir : dirs) {
             map.put(dir + suffix, meta);
             meta = rot.applyAsInt(meta);
+        }
+    }
+
+    private static void fillDoor(Map<String, Integer> map) {
+        int meta = 0;
+        String[] dirs = {"north","east","south","west"};
+        for (String dir : dirs) {
+            map.put(dir + "_bottom_closed", meta);
+            map.put(dir + "_bottom_open", meta | 4);
+            map.put(dir + "_top_closed", meta | 8);
+            map.put(dir + "_top_open", meta | 12);
+            meta = rotateDoor90(meta);
+        }
+    }
+
+    private static void fillTrapDoor(Map<String, Integer> map) {
+        int meta = 0;
+        String[] dirs = {"north","east","south","west"};
+        for (String dir : dirs) {
+            map.put(dir + "_bottom_closed", meta);
+            map.put(dir + "_bottom_open", meta | 4);
+            map.put(dir + "_top_closed", meta | 8);
+            map.put(dir + "_top_open", meta | 12);
+            meta = rotateTrapdoor90(meta);
         }
     }
 }
