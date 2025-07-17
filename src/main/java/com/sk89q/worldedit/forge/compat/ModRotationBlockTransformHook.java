@@ -6,6 +6,7 @@ import java.util.Map;
 import net.minecraft.block.Block;
 import com.sk89q.worldedit.forge.compat.RotationMappings;
 import com.sk89q.worldedit.forge.compat.RotationMapping;
+import com.sk89q.worldedit.forge.compat.RotationUtils;
 
 import com.sk89q.worldedit.Vector;
 import com.sk89q.worldedit.blocks.BaseBlock;
@@ -47,8 +48,14 @@ public class ModRotationBlockTransformHook implements BlockTransformHook {
             return block;
         }
         int data = block.getData();
+        int orig = data;
         if (mapping.getMetas() != null && !mapping.getMetas().isEmpty()) {
             data = rotateTransform(data, mapping.getMetas(), affine);
+        }
+        if (data == orig) {
+            Vector rot = affine.getRotations();
+            int ticks = Math.round((float) (-rot.getY() / 90));
+            data = RotationUtils.rotateMeta(mapping.getType(), ticks, data);
         }
         block.setData(data);
         return block;

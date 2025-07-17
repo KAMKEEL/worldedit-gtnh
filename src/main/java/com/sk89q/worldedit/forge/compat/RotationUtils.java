@@ -4,6 +4,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.function.IntUnaryOperator;
 
+
 /** Utility methods for rotation mappings. */
 public final class RotationUtils {
     private RotationUtils() {}
@@ -165,6 +166,36 @@ public final class RotationUtils {
         int orientation = data & 0x3;
         orientation = (orientation + 3) & 3;
         return orientation | extra;
+    }
+
+    /** Rotate the given metadata according to the rotation type and transform. */
+    public static int rotateMeta(RotationType type, int ticks, int data) {
+        if (ticks == 0) {
+            return data;
+        }
+        int steps = Math.abs(ticks) % 4;
+        for (int i = 0; i < steps; i++) {
+            switch (type) {
+                case STAIRS:
+                    data = ticks > 0 ? rotateStairs90(data) : rotateStairs90Reverse(data);
+                    break;
+                case PILLAR:
+                    data = rotatePillar90(data);
+                    break;
+                case DOOR:
+                    data = ticks > 0 ? rotateDoor90(data) : rotateDoor90Reverse(data);
+                    break;
+                case TRAP_DOOR:
+                    data = ticks > 0 ? rotateTrapdoor90(data) : rotateTrapdoor90Reverse(data);
+                    break;
+                case FENCE_GATE:
+                    data = ticks > 0 ? rotateFenceGate90(data) : rotateFenceGate90Reverse(data);
+                    break;
+                default:
+                    break;
+            }
+        }
+        return data;
     }
 
     public static Map<String,Integer> defaultMetaMap(RotationType type) {
