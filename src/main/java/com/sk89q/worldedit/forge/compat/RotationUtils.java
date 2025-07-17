@@ -171,17 +171,17 @@ public final class RotationUtils {
         Map<String,Integer> map = new LinkedHashMap<>();
         switch (type) {
             case STAIRS:
-                fillDirectional(map, 0, RotationUtils::rotateStairs90);
-                fillDirectional(map, 4, RotationUtils::rotateStairs90);
+                fillDirectional(map, 0, RotationUtils::rotateStairs90, "_bottom");
+                fillDirectional(map, 4, RotationUtils::rotateStairs90, "_top");
                 break;
             case DOOR:
-                fillDirectional(map, 0, RotationUtils::rotateDoor90);
+                fillDirectional(map, 0, RotationUtils::rotateDoor90, "");
                 break;
             case TRAP_DOOR:
-                fillDirectional(map, 0, RotationUtils::rotateTrapdoor90);
+                fillDirectional(map, 0, RotationUtils::rotateTrapdoor90, "");
                 break;
             case FENCE_GATE:
-                fillDirectional(map, 0, RotationUtils::rotateFenceGate90);
+                fillDirectional(map, 0, RotationUtils::rotateFenceGate90, "");
                 break;
             case PILLAR:
                 map.put("y", 0);
@@ -194,11 +194,11 @@ public final class RotationUtils {
         return map;
     }
 
-    private static void fillDirectional(Map<String,Integer> map, int start, IntUnaryOperator rot) {
+    private static void fillDirectional(Map<String,Integer> map, int start, IntUnaryOperator rot, String suffix) {
         String[] dirs = {"north","east","south","west"};
         int meta = start;
         for (String dir : dirs) {
-            map.put(dir, meta);
+            map.put(dir + suffix, meta);
             meta = rot.applyAsInt(meta);
         }
     }

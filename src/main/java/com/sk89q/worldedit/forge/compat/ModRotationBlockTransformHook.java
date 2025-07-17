@@ -4,16 +4,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import net.minecraft.block.Block;
-import net.minecraft.block.BlockDoor;
-import net.minecraft.block.BlockFenceGate;
-import net.minecraft.block.BlockRotatedPillar;
-import net.minecraft.block.BlockStairs;
-import net.minecraft.block.BlockTrapDoor;
-
-import com.sk89q.worldedit.forge.compat.RotationType;
-import com.sk89q.worldedit.forge.compat.ModRotationConfig;
+import com.sk89q.worldedit.forge.compat.RotationMappings;
 import com.sk89q.worldedit.forge.compat.RotationMapping;
-import com.sk89q.worldedit.forge.compat.RotationUtils;
 
 import com.sk89q.worldedit.Vector;
 import com.sk89q.worldedit.blocks.BaseBlock;
@@ -38,7 +30,7 @@ public class ModRotationBlockTransformHook implements BlockTransformHook {
             Object identifier = Block.blockRegistry.getNameForObject(mcBlock);
             String name = identifier == null ? null : identifier.toString();
             if (name != null) {
-                result = ModRotationConfig.getInstance().get(name);
+                result = RotationMappings.getInstance().get(name);
             }
         }
         cache.put(id, result);
@@ -54,76 +46,68 @@ public class ModRotationBlockTransformHook implements BlockTransformHook {
         if (mapping == null) {
             return block;
         }
-        Vector rot = affine.getRotations();
-        int ticks = Math.round((float) (-rot.getY() / 90));
-        if (ticks == 0) {
-            return block;
-        }
         int data = block.getData();
-        int steps = Math.abs(ticks) % 4;
-        for (int i = 0; i < steps; i++) {
-            if (mapping.getMetas() != null && !mapping.getMetas().isEmpty()) {
-                data = rotateCustom(data, mapping.getMetas(), ticks > 0);
-                continue;
-            }
-            switch (mapping.getType()) {
-                case STAIRS:
-                    data = ticks > 0 ? RotationUtils.rotateStairs90(data) : RotationUtils.rotateStairs90Reverse(data);
-                    break;
-                case PILLAR:
-                    data = RotationUtils.rotatePillar90(data); // same both directions
-                    break;
-                case DOOR:
-                    data = ticks > 0 ? RotationUtils.rotateDoor90(data) : RotationUtils.rotateDoor90Reverse(data);
-                    break;
-                case TRAP_DOOR:
-                    data = ticks > 0 ? RotationUtils.rotateTrapdoor90(data) : RotationUtils.rotateTrapdoor90Reverse(data);
-                    break;
-                case FENCE_GATE:
-                    data = ticks > 0 ? RotationUtils.rotateFenceGate90(data) : RotationUtils.rotateFenceGate90Reverse(data);
-                    break;
-                case OTHER:
-                    // no meta mapping provided
-                    break;
-            }
+        if (mapping.getMetas() != null && !mapping.getMetas().isEmpty()) {
+            data = rotateTransform(data, mapping.getMetas(), affine);
         }
         block.setData(data);
         return block;
     }
 
+    private static final Map<String, Vector> DIRS = new HashMap<>();
+    static {
+        DIRS.put("north", new Vector(0, 0, -1));
+        DIRS.put("south", new Vector(0, 0, 1));
+        DIRS.put("east", new Vector(1, 0, 0));
+        DIRS.put("west", new Vector(-1, 0, 0));
+        DIRS.put("x", new Vector(1, 0, 0));
+        DIRS.put("y", new Vector(0, 1, 0));
+        DIRS.put("z", new Vector(0, 0, 1));
+    }
 
-    private int rotateCustom(int data, Map<String, Integer> map, boolean clockwise) {
-        if (map == null || map.isEmpty()) {
-            return data;
-        }
-        int extra = data & ~0x3;
-        int orientation = data & 0x3;
-        String dir = null;
+    private int rotateTransform(int data, Map<String, Integer> map, AffineTransform transform) {
+        String key = null;
         for (Map.Entry<String, Integer> e : map.entrySet()) {
-            if (e.getValue() == orientation) {
-                dir = e.getKey().toLowerCase();
+            if (e.getValue() == data) {
+                key = e.getKey();
                 break;
             }
         }
-        if (dir == null) {
+        if (key == null) {
             return data;
         }
-        String[] order = {"north", "east", "south", "west"};
-        int idx = -1;
-        for (int i = 0; i < order.length; i++) {
-            if (order[i].equals(dir)) {
-                idx = i;
-                break;
+        String suffix = "";
+        String base = key;
+        if (key.endsWith("_top")) {
+            suffix = "_top";
+            base = key.substring(0, key.length() - 4);
+        } else if (key.endsWith("_bottom")) {
+            suffix = "_bottom";
+            base = key.substring(0, key.length() - 7);
+        }
+        Vector vec = DIRS.get(base.toLowerCase());
+        if (vec == null) {
+            return data;
+        }
+        Vector out = transform.apply(vec).subtract(transform.apply(Vector.ZERO)).normalize();
+        String best = null;
+        double bestDot = -2;
+        for (String cand : map.keySet()) {
+            String c = cand;
+            if (c.endsWith("_top")) c = c.substring(0, c.length() - 4);
+            else if (c.endsWith("_bottom")) c = c.substring(0, c.length() - 7);
+            Vector dirVec = DIRS.get(c.toLowerCase());
+            if (dirVec == null) continue;
+            double dot = dirVec.normalize().dot(out);
+            if (dot > bestDot) {
+                bestDot = dot;
+                best = c;
             }
         }
-        if (idx == -1) {
+        if (best == null) {
             return data;
         }
-        int newIdx = clockwise ? (idx + 1) & 3 : (idx + 3) & 3;
-        Integer newMeta = map.get(order[newIdx]);
-        if (newMeta == null) {
-            return data;
-        }
-        return extra | newMeta;
+        Integer newMeta = map.get(best + suffix);
+        return newMeta != null ? newMeta : data;
     }
 }

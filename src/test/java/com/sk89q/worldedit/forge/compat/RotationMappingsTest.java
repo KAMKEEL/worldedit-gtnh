@@ -8,19 +8,19 @@ import java.util.Map;
 
 import com.google.gson.Gson;
 import com.sk89q.worldedit.util.gson.GsonUtil;
+import com.sk89q.worldedit.forge.compat.RotationMappings;
 import org.junit.Test;
 
-/** Tests for {@link ModRotationConfig}. */
-public class ModRotationConfigTest {
+/** Tests for {@link RotationMappings}. */
+public class RotationMappingsTest {
 
     @Test
     public void testGenerateDefaults() throws Exception {
         File dir = Files.createTempDirectory("modrot").toFile();
-        System.out.println("DIR=" + dir.getAbsolutePath());
-        ModRotationConfig.init(dir);
-        ModRotationConfig cfg = ModRotationConfig.getInstance();
+        RotationMappings.init(dir);
+        RotationMappings cfg = RotationMappings.getInstance();
         assertNotNull(cfg);
-        File f = new File(dir, "mod-rotations.json");
+        File f = new File(dir, "mappings/stairs.json");
         assertTrue("config file missing", f.exists());
 
         Gson gson = GsonUtil.createBuilder().create();
