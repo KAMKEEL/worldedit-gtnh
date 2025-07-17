@@ -212,8 +212,8 @@ public final class RotationUtils {
         Map<String,Integer> map = new LinkedHashMap<>();
         switch (type) {
             case STAIRS:
-                fillDirectional(map, 0, RotationUtils::rotateStairs90, "_bottom");
-                fillDirectional(map, 4, RotationUtils::rotateStairs90, "_top");
+                fillDirectional(map, 3, RotationUtils::rotateStairs90, "_bottom");
+                fillDirectional(map, 7, RotationUtils::rotateStairs90, "_top");
                 break;
             case DOOR:
                 fillDoor(map);
@@ -269,5 +269,45 @@ public final class RotationUtils {
             map.put(dir + "_top_open", meta | 12);
             meta = rotateTrapdoor90(meta);
         }
+    }
+
+    public static Map<String, Integer> defaultButtonMap() {
+        Map<String, Integer> map = new LinkedHashMap<>();
+        int meta = 4; // north
+        String[] dirs = {"north", "east", "south", "west"};
+        for (String dir : dirs) {
+            map.put(dir, meta);
+            map.put(dir + "_pressed", meta | 8);
+            meta = rotateButton90(meta);
+        }
+        return map;
+    }
+
+    public static int rotateButton90(int data) {
+        int dir = data & 7;
+        int pressed = data & 8;
+        int out;
+        switch (dir) {
+            case 1: out = 3; break; // east -> south
+            case 3: out = 2; break; // south -> west
+            case 2: out = 4; break; // west -> north
+            case 4: out = 1; break; // north -> east
+            default: out = dir; break;
+        }
+        return out | pressed;
+    }
+
+    public static int rotateButton90Reverse(int data) {
+        int dir = data & 7;
+        int pressed = data & 8;
+        int out;
+        switch (dir) {
+            case 3: out = 1; break; // south -> east
+            case 2: out = 3; break; // west -> south
+            case 4: out = 2; break; // north -> west
+            case 1: out = 4; break; // east -> north
+            default: out = dir; break;
+        }
+        return out | pressed;
     }
 }

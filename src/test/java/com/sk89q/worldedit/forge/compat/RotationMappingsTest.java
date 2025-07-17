@@ -90,6 +90,20 @@ public class RotationMappingsTest {
     }
 
     @Test
+    public void testStairsLowMetaRotation() {
+        int meta = 3; // north bottom
+        int result = RotationUtils.rotateMeta(RotationType.STAIRS, 1, meta);
+        assertEquals("low meta stairs rotated", 0, result);
+    }
+
+    @Test
+    public void testStairsDefaultMap() {
+        Map<String,Integer> map = RotationUtils.defaultMetaMap(RotationType.STAIRS);
+        assertEquals(Integer.valueOf(3), map.get("north_bottom"));
+        assertEquals(Integer.valueOf(7), map.get("north_top"));
+    }
+
+    @Test
     public void testPillarRotation() {
         int meta = 4; // x axis
         int result = RotationUtils.rotateMeta(RotationType.PILLAR, 1, meta);
@@ -116,5 +130,18 @@ public class RotationMappingsTest {
         assertEquals(Integer.valueOf(0), map.get("y"));
         assertEquals(Integer.valueOf(4), map.get("x"));
         assertEquals(Integer.valueOf(8), map.get("z"));
+    }
+
+    @Test
+    public void testButtonDefaultMap() {
+        Map<String,Integer> map = RotationUtils.defaultButtonMap();
+        assertEquals(Integer.valueOf(4), map.get("north"));
+        assertEquals(Integer.valueOf(12), map.get("north_pressed"));
+    }
+
+    @Test
+    public void testButtonRotation() throws Exception {
+        int out = RotationUtils.rotateButton90(4);
+        assertEquals(1, out);
     }
 }

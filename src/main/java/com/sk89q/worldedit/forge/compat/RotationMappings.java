@@ -9,6 +9,7 @@ import net.minecraft.block.BlockFenceGate;
 import net.minecraft.block.BlockRotatedPillar;
 import net.minecraft.block.BlockStairs;
 import net.minecraft.block.BlockTrapDoor;
+import net.minecraft.block.BlockButton;
 
 import java.io.File;
 import java.io.FileReader;
@@ -127,10 +128,18 @@ public class RotationMappings {
                 type = RotationType.TRAP_DOOR;
             } else if (block instanceof BlockFenceGate) {
                 type = RotationType.FENCE_GATE;
+            } else if (block instanceof BlockButton) {
+                type = RotationType.OTHER;
             }
             if (type != null) {
                 RotationMapping mapping = new RotationMapping(type);
-                mapping.setMetas(RotationUtils.defaultMetaMap(type));
+                Map<String,Integer> metas;
+                if (block instanceof BlockButton) {
+                    metas = RotationUtils.defaultButtonMap();
+                } else {
+                    metas = RotationUtils.defaultMetaMap(type);
+                }
+                mapping.setMetas(metas);
                 mappings.put(name, mapping);
             }
         }

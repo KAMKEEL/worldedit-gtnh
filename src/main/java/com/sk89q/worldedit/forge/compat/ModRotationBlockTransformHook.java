@@ -91,6 +91,9 @@ public class ModRotationBlockTransformHook implements BlockTransformHook {
         } else if (key.endsWith("_bottom")) {
             suffix = "_bottom";
             base = key.substring(0, key.length() - 7);
+        } else if (key.endsWith("_pressed")) {
+            suffix = "_pressed";
+            base = key.substring(0, key.length() - 8);
         }
         Vector vec = DIRS.get(base.toLowerCase());
         if (vec == null) {
@@ -103,6 +106,7 @@ public class ModRotationBlockTransformHook implements BlockTransformHook {
             String c = cand;
             if (c.endsWith("_top")) c = c.substring(0, c.length() - 4);
             else if (c.endsWith("_bottom")) c = c.substring(0, c.length() - 7);
+            else if (c.endsWith("_pressed")) c = c.substring(0, c.length() - 8);
             Vector dirVec = DIRS.get(c.toLowerCase());
             if (dirVec == null) continue;
             double dot = Math.abs(dirVec.normalize().dot(out));
