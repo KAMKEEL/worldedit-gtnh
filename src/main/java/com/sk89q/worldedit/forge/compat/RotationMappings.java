@@ -62,8 +62,8 @@ public class RotationMappings {
         }
         if (mappings.isEmpty()) {
             generateDefaults();
-            saveAll();
         }
+        saveAll();
     }
 
     private Map<String, RotationMapping> loadFile(File file, RotationType type) {
@@ -72,7 +72,9 @@ public class RotationMappings {
         }
         Type mapType = new TypeToken<Map<String, Map<String, Integer>>>() {}.getType();
         try (FileReader r = new FileReader(file)) {
-            Map<String, Map<String, Integer>> raw = gson.fromJson(r, mapType);
+            com.google.gson.stream.JsonReader jr = new com.google.gson.stream.JsonReader(r);
+            jr.setLenient(true);
+            Map<String, Map<String, Integer>> raw = gson.fromJson(jr, mapType);
             if (raw == null) return null;
             Map<String, RotationMapping> result = new HashMap<>();
             for (Map.Entry<String, Map<String, Integer>> e : raw.entrySet()) {
@@ -97,6 +99,10 @@ public class RotationMappings {
         for (RotationType t : RotationType.values()) {
             File file = new File(dir, t.name().toLowerCase() + ".json");
             try (FileWriter w = new FileWriter(file)) {
+                w.write("// Rotation mappings for " + t.name().toLowerCase() + "\n");
+                if (t == RotationType.OTHER) {
+                    w.write("// Add block id to map custom meta directions\n");
+                }
                 gson.toJson(byType.get(t), w);
             } catch (IOException ignore) {
             }

@@ -25,13 +25,20 @@ public class RotationMappingsTest {
 
         Gson gson = GsonUtil.createBuilder().create();
         try (java.io.FileReader r = new java.io.FileReader(f)) {
+            com.google.gson.stream.JsonReader jr = new com.google.gson.stream.JsonReader(r);
+            jr.setLenient(true);
             @SuppressWarnings("unchecked")
-            Map<String, Object> map = gson.fromJson(r, Map.class);
+            Map<String, Object> map = gson.fromJson(jr, Map.class);
             if (map != null) {
                 for (String key : map.keySet()) {
                     assertFalse("vanilla entry present", key.startsWith("minecraft:"));
                 }
             }
+        }
+        // ensure comment exists
+        try (java.io.BufferedReader br = new java.io.BufferedReader(new java.io.FileReader(f))) {
+            String first = br.readLine();
+            assertTrue(first.startsWith("//"));
         }
     }
 }
