@@ -250,10 +250,13 @@ public final class RotationUtils {
         for (String dir : dirs) {
             map.put(dir + "_bottom_closed", meta);
             map.put(dir + "_bottom_open", meta | 4);
-            map.put(dir + "_top_closed", meta | 8);
-            map.put(dir + "_top_open", meta | 12);
             meta = rotateDoor90(meta);
         }
+        // Top half metadata does not store orientation or open state
+        map.put("top_left", 8);
+        map.put("top_right", 9);
+        map.put("top_left_powered", 10);
+        map.put("top_right_powered", 11);
     }
 
     private static void fillTrapDoor(Map<String, Integer> map) {

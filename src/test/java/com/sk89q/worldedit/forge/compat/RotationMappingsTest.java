@@ -64,11 +64,11 @@ public class RotationMappingsTest {
     @Test
     public void testDoorDefaultMap() {
         Map<String,Integer> map = RotationUtils.defaultMetaMap(RotationType.DOOR);
-        assertEquals("door map entries", 16, map.size());
+        assertEquals("door map entries", 12, map.size());
         assertEquals(Integer.valueOf(0), map.get("north_bottom_closed"));
         assertEquals(Integer.valueOf(4), map.get("north_bottom_open"));
-        assertEquals(Integer.valueOf(8), map.get("north_top_closed"));
-        assertEquals(Integer.valueOf(12), map.get("north_top_open"));
+        assertEquals(Integer.valueOf(8), map.get("top_left"));
+        assertEquals(Integer.valueOf(9), map.get("top_right"));
     }
 
     @Test
