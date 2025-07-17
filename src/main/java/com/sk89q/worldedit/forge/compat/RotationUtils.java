@@ -10,10 +10,14 @@ public final class RotationUtils {
     private RotationUtils() {}
 
     public static int rotatePillar90(int data) {
-        if (data >= 4 && data <= 11) {
-            return data ^ 0xC;
+        int axis = data & 0xC;
+        if (axis == 0x4) { // x -> z
+            return (data & ~0xC) | 0x8;
+        } else if (axis == 0x8) { // z -> x
+            return (data & ~0xC) | 0x4;
+        } else {
+            return data;
         }
-        return data;
     }
 
     public static int rotateStairs90(int data) {
@@ -87,6 +91,9 @@ public final class RotationUtils {
     }
 
     public static int rotateDoor90(int data) {
+        if ((data & 0x8) != 0) {
+            return data; // top half stores no orientation
+        }
         int extra = data & ~0x3;
         int without = data & 0x3;
         switch (without) {
@@ -104,6 +111,9 @@ public final class RotationUtils {
     }
 
     public static int rotateDoor90Reverse(int data) {
+        if ((data & 0x8) != 0) {
+            return data;
+        }
         int extra = data & ~0x3;
         int without = data & 0x3;
         switch (without) {

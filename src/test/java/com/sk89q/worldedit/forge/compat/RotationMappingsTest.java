@@ -55,6 +55,13 @@ public class RotationMappingsTest {
     }
 
     @Test
+    public void testRotateDoorTopHalf() {
+        int meta = 8; // north top closed
+        int result = RotationUtils.rotateMeta(RotationType.DOOR, 1, meta);
+        assertEquals("door top half unchanged", 8, result);
+    }
+
+    @Test
     public void testDoorDefaultMap() {
         Map<String,Integer> map = RotationUtils.defaultMetaMap(RotationType.DOOR);
         assertEquals("door map entries", 16, map.size());
@@ -79,5 +86,13 @@ public class RotationMappingsTest {
         int meta = 10; // meta >= 8
         int result = RotationUtils.rotateMeta(RotationType.STAIRS, 1, meta);
         assertEquals("big meta stairs rotated", 9, result);
+    }
+
+    @Test
+    public void testPillarRotation() {
+        int meta = 4; // x axis
+        int result = RotationUtils.rotateMeta(RotationType.PILLAR, 1, meta);
+        assertEquals("pillar axis swapped", 8, result);
+        assertEquals("vertical pillar unchanged", 0, RotationUtils.rotateMeta(RotationType.PILLAR, 1, 0));
     }
 }
