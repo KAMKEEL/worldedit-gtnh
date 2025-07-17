@@ -144,4 +144,46 @@ public class RotationMappingsTest {
         int out = RotationUtils.rotateButton90(4);
         assertEquals(1, out);
     }
+    @Test
+    public void testStairsBigMetaReverseRotation() {
+        int meta = 12;
+        int result = RotationUtils.rotateMeta(RotationType.STAIRS, -1, meta);
+        assertEquals("big meta stairs reverse", 15, result);
+    }
+
+    @Test
+    public void testStairsBigMetaDoubleRotation() {
+        int meta = 8;
+        int result = RotationUtils.rotateMeta(RotationType.STAIRS, 2, meta);
+        assertEquals("big meta stairs 180", 9, result);
+    }
+
+    @Test
+    public void testFenceGateDefaultMap() {
+        Map<String,Integer> map = RotationUtils.defaultMetaMap(RotationType.FENCE_GATE);
+        assertEquals(Integer.valueOf(0), map.get("north"));
+        assertEquals(Integer.valueOf(1), map.get("east"));
+        assertEquals(4, map.size());
+    }
+
+    @Test
+    public void testFenceGateRotation() {
+        int meta = 0;
+        int result = RotationUtils.rotateMeta(RotationType.FENCE_GATE, 3, meta);
+        assertEquals("gate rotated thrice", 3, result);
+    }
+
+    @Test
+    public void testTrapdoorDoubleRotation() {
+        int meta = 1;
+        int result = RotationUtils.rotateMeta(RotationType.TRAP_DOOR, 2, meta);
+        assertEquals("trapdoor 180", 0, result);
+    }
+
+    @Test
+    public void testDoorNegativeRotation() {
+        int meta = 1;
+        int result = RotationUtils.rotateMeta(RotationType.DOOR, -1, meta);
+        assertEquals("door reverse", 0, result);
+    }
 }
