@@ -47,7 +47,7 @@ import com.sk89q.worldedit.forge.compat.CarpentersBlocksBlockTransformHook;
 import com.sk89q.worldedit.forge.compat.ForgeMultipartCompat;
 import com.sk89q.worldedit.forge.compat.ForgeMultipartExistsCompat;
 import com.sk89q.worldedit.forge.compat.ModRotationBlockTransformHook;
-import com.sk89q.worldedit.forge.compat.ModRotationConfig;
+import com.sk89q.worldedit.forge.compat.RotationMappings;
 import com.sk89q.worldedit.forge.compat.NoForgeMultipartCompat;
 import com.sk89q.worldedit.internal.LocalWorldAdapter;
 
@@ -106,8 +106,6 @@ public class ForgeWorldEdit {
         config = new ForgeConfiguration(this);
         config.load();
 
-        ModRotationConfig.init(workingDir);
-
         if (Loader.isModLoaded("ForgeMultipart")) {
             compat = new ForgeMultipartExistsCompat();
             ForgeWorldData.getInstance()
@@ -153,6 +151,7 @@ public class ForgeWorldEdit {
                 .unregister(platform);
         }
 
+        RotationMappings.init(workingDir);
         ForgeBiomeRegistry.populate();
 
         this.platform = new ForgePlatform(this);
