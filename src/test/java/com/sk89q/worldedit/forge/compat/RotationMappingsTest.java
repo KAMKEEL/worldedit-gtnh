@@ -113,6 +113,15 @@ public class RotationMappingsTest {
     }
 
     @Test
+    public void testStairsTransformAll() {
+        StairRotation sr = RotationUtils.defaultStairs();
+        AffineTransform rot = new AffineTransform().rotateY(-90);
+        for (int meta = 0; meta < 16; meta++) {
+            assertEquals("meta " + meta, sr.rotate(meta, 1), sr.transform(meta, rot));
+        }
+    }
+
+    @Test
     public void testPillarRotation() {
         int meta = 4; // x axis
         int result = RotationUtils.rotateMeta(RotationType.PILLAR, 1, meta);
@@ -157,8 +166,8 @@ public class RotationMappingsTest {
     @Test
     public void testFenceGateDefault() {
         FourRotation fr = RotationUtils.defaultFour(false);
-        assertEquals(0, fr.getMetas()[0]);
-        assertEquals(1, fr.getMetas()[1]);
+        assertEquals(2, fr.getMetas()[0]);
+        assertEquals(3, fr.getMetas()[1]);
     }
 
     @Test
@@ -166,6 +175,15 @@ public class RotationMappingsTest {
         int meta = 0;
         int result = RotationUtils.rotateMeta(RotationType.FENCE_GATE, 3, meta);
         assertEquals("gate rotated thrice", 3, result);
+    }
+
+    @Test
+    public void testFourRotationTransform() {
+        FourRotation fr = RotationUtils.defaultFour(false);
+        AffineTransform rot = new AffineTransform().rotateY(-90);
+        for (int i = 0; i < 4; i++) {
+            assertEquals(fr.rotate(fr.getMetas()[i], 1), fr.transform(fr.getMetas()[i], rot));
+        }
     }
 
     @Test

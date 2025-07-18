@@ -222,7 +222,7 @@ public final class RotationUtils {
     }
 
     public static FourRotation defaultFour(boolean button) {
-        int start = button ? 4 : 0;
+        int start = button ? 4 : 2; // north facing for fence gates
         IntUnaryOperator rot = button ? RotationUtils::rotateButton90 : RotationUtils::rotateFenceGate90;
         FourRotation fr = new FourRotation();
         fr.setMetas(fillDirectional(start, rot));

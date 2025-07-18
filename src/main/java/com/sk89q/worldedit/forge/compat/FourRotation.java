@@ -36,7 +36,7 @@ public class FourRotation implements RotationBase {
         double best = -2;
         int bestIdx = idx;
         for (int i=0;i<4;i++) {
-            double dot = Math.abs(DIRS[i].normalize().dot(out));
+            double dot = DIRS[i].normalize().dot(out);
             if (dot > best) { best = dot; bestIdx = i; }
         }
         return metas[bestIdx];
