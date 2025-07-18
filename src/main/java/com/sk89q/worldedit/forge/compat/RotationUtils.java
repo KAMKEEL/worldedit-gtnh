@@ -1,7 +1,5 @@
 package com.sk89q.worldedit.forge.compat;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
 import java.util.function.IntUnaryOperator;
 
 
@@ -208,79 +206,37 @@ public final class RotationUtils {
         return data;
     }
 
-    public static Map<String,Integer> defaultMetaMap(RotationType type) {
-        Map<String,Integer> map = new LinkedHashMap<>();
-        switch (type) {
-            case STAIRS:
-                fillDirectional(map, 3, RotationUtils::rotateStairs90, "_bottom");
-                fillDirectional(map, 7, RotationUtils::rotateStairs90, "_top");
-                break;
-            case DOOR:
-                fillDoor(map);
-                break;
-            case TRAP_DOOR:
-                fillTrapDoor(map);
-                break;
-            case FENCE_GATE:
-                fillDirectional(map, 0, RotationUtils::rotateFenceGate90, "");
-                break;
-            case PILLAR:
-                map.put("y", 0);
-                map.put("x", 4);
-                map.put("z", 8);
-                break;
-            default:
-                break;
-        }
-        return map;
+    public static StairRotation defaultStairs() {
+        StairRotation sr = new StairRotation();
+        sr.setBottom(fillDirectional(3, RotationUtils::rotateStairs90));
+        sr.setTop(fillDirectional(7, RotationUtils::rotateStairs90));
+        return sr;
     }
 
-    private static void fillDirectional(Map<String,Integer> map, int start, IntUnaryOperator rot, String suffix) {
-        String[] dirs = {"north","east","south","west"};
+    public static PillarRotation defaultPillar() {
+        PillarRotation pr = new PillarRotation();
+        pr.setY(0);
+        pr.setX(4);
+        pr.setZ(8);
+        return pr;
+    }
+
+    public static FourRotation defaultFour(boolean button) {
+        int start = button ? 4 : 0;
+        IntUnaryOperator rot = button ? RotationUtils::rotateButton90 : RotationUtils::rotateFenceGate90;
+        FourRotation fr = new FourRotation();
+        fr.setMetas(fillDirectional(start, rot));
+        return fr;
+    }
+
+    private static int[] fillDirectional(int start, IntUnaryOperator rot) {
+        int[] arr = new int[4];
         int meta = start;
-        for (String dir : dirs) {
-            map.put(dir + suffix, meta);
+        for (int i=0;i<4;i++) {
+            arr[i] = meta;
             meta = rot.applyAsInt(meta);
         }
-    }
-
-    private static void fillDoor(Map<String, Integer> map) {
-        int meta = 0;
-        String[] dirs = {"north","east","south","west"};
-        for (String dir : dirs) {
-            map.put(dir + "_bottom_closed", meta);
-            map.put(dir + "_bottom_open", meta | 4);
-            meta = rotateDoor90(meta);
-        }
-        // Top half metadata does not store orientation or open state
-        map.put("top_left", 8);
-        map.put("top_right", 9);
-        map.put("top_left_powered", 10);
-        map.put("top_right_powered", 11);
-    }
-
-    private static void fillTrapDoor(Map<String, Integer> map) {
-        int meta = 0;
-        String[] dirs = {"north","east","south","west"};
-        for (String dir : dirs) {
-            map.put(dir + "_bottom_closed", meta);
-            map.put(dir + "_bottom_open", meta | 4);
-            map.put(dir + "_top_closed", meta | 8);
-            map.put(dir + "_top_open", meta | 12);
-            meta = rotateTrapdoor90(meta);
-        }
-    }
-
-    public static Map<String, Integer> defaultButtonMap() {
-        Map<String, Integer> map = new LinkedHashMap<>();
-        int meta = 4; // north
-        String[] dirs = {"north", "east", "south", "west"};
-        for (String dir : dirs) {
-            map.put(dir, meta);
-            map.put(dir + "_pressed", meta | 8);
-            meta = rotateButton90(meta);
-        }
-        return map;
+        return arr;
     }
 
     public static int rotateButton90(int data) {

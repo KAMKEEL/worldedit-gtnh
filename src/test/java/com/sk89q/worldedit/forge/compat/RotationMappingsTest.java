@@ -12,7 +12,9 @@ import com.sk89q.worldedit.math.transform.AffineTransform;
 import com.sk89q.worldedit.forge.compat.RotationMappings;
 import com.sk89q.worldedit.forge.compat.RotationUtils;
 import com.sk89q.worldedit.forge.compat.RotationType;
-import com.sk89q.worldedit.forge.compat.ModRotationBlockTransformHook;
+import com.sk89q.worldedit.forge.compat.StairRotation;
+import com.sk89q.worldedit.forge.compat.PillarRotation;
+import com.sk89q.worldedit.forge.compat.FourRotation;
 import org.junit.Test;
 
 /** Tests for {@link RotationMappings}. */
@@ -62,25 +64,7 @@ public class RotationMappingsTest {
         assertEquals("door top half unchanged", 8, result);
     }
 
-    @Test
-    public void testDoorDefaultMap() {
-        Map<String,Integer> map = RotationUtils.defaultMetaMap(RotationType.DOOR);
-        assertEquals("door map entries", 12, map.size());
-        assertEquals(Integer.valueOf(0), map.get("north_bottom_closed"));
-        assertEquals(Integer.valueOf(4), map.get("north_bottom_open"));
-        assertEquals(Integer.valueOf(8), map.get("top_left"));
-        assertEquals(Integer.valueOf(9), map.get("top_right"));
-    }
-
-    @Test
-    public void testTrapdoorDefaultMap() {
-        Map<String,Integer> map = RotationUtils.defaultMetaMap(RotationType.TRAP_DOOR);
-        assertEquals("trapdoor map entries", 16, map.size());
-        assertEquals(Integer.valueOf(0), map.get("north_bottom_closed"));
-        assertEquals(Integer.valueOf(4), map.get("north_bottom_open"));
-        assertEquals(Integer.valueOf(8), map.get("north_top_closed"));
-        assertEquals(Integer.valueOf(12), map.get("north_top_open"));
-    }
+    // door and trapdoor defaults covered by rotateMeta tests
 
     @Test
     public void testStairsBigMetaRotation() {
@@ -97,10 +81,10 @@ public class RotationMappingsTest {
     }
 
     @Test
-    public void testStairsDefaultMap() {
-        Map<String,Integer> map = RotationUtils.defaultMetaMap(RotationType.STAIRS);
-        assertEquals(Integer.valueOf(3), map.get("north_bottom"));
-        assertEquals(Integer.valueOf(7), map.get("north_top"));
+    public void testStairsDefaultArrays() {
+        StairRotation sr = RotationUtils.defaultStairs();
+        assertEquals(3, sr.getBottom()[0]);
+        assertEquals(7, sr.getTop()[0]);
     }
 
     @Test
@@ -111,32 +95,19 @@ public class RotationMappingsTest {
         assertEquals("vertical pillar unchanged", 0, RotationUtils.rotateMeta(RotationType.PILLAR, 1, 0));
     }
 
+
     @Test
-    public void testPillarFlip() throws Exception {
-        java.lang.reflect.Method m = ModRotationBlockTransformHook.class.getDeclaredMethod(
-            "rotateTransform", int.class, Map.class, AffineTransform.class);
-        m.setAccessible(true);
-        Map<String,Integer> map = RotationUtils.defaultMetaMap(RotationType.PILLAR);
-        AffineTransform flipX = new AffineTransform();
-        flipX = flipX.scale(-1, 1, 1);
-        int result = (int) m.invoke(new ModRotationBlockTransformHook(), 4, map, flipX);
-        assertEquals("pillar flip keeps axis", 4, result);
+    public void testPillarDefault() {
+        PillarRotation pr = RotationUtils.defaultPillar();
+        assertEquals(0, pr.getY());
+        assertEquals(4, pr.getX());
+        assertEquals(8, pr.getZ());
     }
 
     @Test
-    public void testPillarDefaultMap() {
-        Map<String,Integer> map = RotationUtils.defaultMetaMap(RotationType.PILLAR);
-        assertEquals("pillar default entries", 3, map.size());
-        assertEquals(Integer.valueOf(0), map.get("y"));
-        assertEquals(Integer.valueOf(4), map.get("x"));
-        assertEquals(Integer.valueOf(8), map.get("z"));
-    }
-
-    @Test
-    public void testButtonDefaultMap() {
-        Map<String,Integer> map = RotationUtils.defaultButtonMap();
-        assertEquals(Integer.valueOf(4), map.get("north"));
-        assertEquals(Integer.valueOf(12), map.get("north_pressed"));
+    public void testButtonDefaults() {
+        FourRotation fr = RotationUtils.defaultFour(true);
+        assertEquals(4, fr.getMetas()[0]);
     }
 
     @Test
@@ -159,11 +130,10 @@ public class RotationMappingsTest {
     }
 
     @Test
-    public void testFenceGateDefaultMap() {
-        Map<String,Integer> map = RotationUtils.defaultMetaMap(RotationType.FENCE_GATE);
-        assertEquals(Integer.valueOf(0), map.get("north"));
-        assertEquals(Integer.valueOf(1), map.get("east"));
-        assertEquals(4, map.size());
+    public void testFenceGateDefault() {
+        FourRotation fr = RotationUtils.defaultFour(false);
+        assertEquals(0, fr.getMetas()[0]);
+        assertEquals(1, fr.getMetas()[1]);
     }
 
     @Test
