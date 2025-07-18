@@ -46,6 +46,18 @@ public class RotationMappingsTest {
             String first = br.readLine();
             assertTrue(first.startsWith("//"));
         }
+
+        // add a dummy custom mapping and verify type key
+        RotationMapping custom = new RotationMapping(RotationType.OTHER, RotationUtils.defaultFour(true));
+        cfg.put("dummy:button", custom);
+        cfg.save();
+        File other = new File(dir, "mappings/other.json");
+        try (java.io.BufferedReader br = new java.io.BufferedReader(new java.io.FileReader(other))) {
+            String comment = br.readLine();
+            assertTrue(comment.startsWith("//"));
+            com.google.gson.JsonObject obj = new com.google.gson.JsonParser().parse(br).getAsJsonObject();
+            assertTrue(obj.getAsJsonObject("dummy:button").has("type"));
+        }
     }
 
     @Test
@@ -85,6 +97,15 @@ public class RotationMappingsTest {
         StairRotation sr = RotationUtils.defaultStairs();
         assertEquals(3, sr.getBottom()[0]);
         assertEquals(7, sr.getTop()[0]);
+    }
+
+    @Test
+    public void testStairsRotateAll() {
+        StairRotation sr = RotationUtils.defaultStairs();
+        for (int meta = 0; meta < 16; meta++) {
+            int expected = RotationUtils.rotateStairs90(meta);
+            assertEquals("meta " + meta, expected, sr.rotate(meta, 1));
+        }
     }
 
     @Test

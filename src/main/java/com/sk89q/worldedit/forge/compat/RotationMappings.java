@@ -74,28 +74,30 @@ public class RotationMappings {
         } catch (IOException ignore) {}
     }
 
-    private RotationMapping parseMapping(RotationType type, JsonObject obj) {
-        switch (type) {
-            case STAIRS:
+    private RotationMapping parseMapping(RotationType fileType, JsonObject obj) {
+        String as = fileType == RotationType.OTHER && obj.has("type")
+                ? obj.get("type").getAsString().toUpperCase()
+                : fileType.name();
+
+        switch (as) {
+            case "STAIR":
+            case "STAIRS":
                 int[] top = arr(obj.getAsJsonArray("top"));
                 int[] bottom = arr(obj.getAsJsonArray("bottom"));
-                return new RotationMapping(type, new StairRotation(){
-                    { setTop(top); setBottom(bottom); }
-                });
-            case PILLAR:
+                return new RotationMapping(fileType,
+                        new StairRotation() {{ setTop(top); setBottom(bottom); }});
+            case "PILLAR":
                 PillarRotation p = new PillarRotation();
                 p.setX(obj.get("x").getAsInt());
                 p.setY(obj.get("y").getAsInt());
                 p.setZ(obj.get("z").getAsInt());
-                return new RotationMapping(type, p);
-            case FENCE_GATE:
-            case OTHER:
+                return new RotationMapping(fileType, p);
+            case "FOUR":
+            case "FENCE_GATE":
                 int[] m = arr(obj.getAsJsonArray("metas"));
-                return new RotationMapping(type, new FourRotation(){ { setMetas(m); } });
-            case DOOR:
-            case TRAP_DOOR:
+                return new RotationMapping(fileType, new FourRotation() {{ setMetas(m); }});
             default:
-                return null; // not implemented
+                return null;
         }
     }
 
@@ -123,19 +125,35 @@ public class RotationMappings {
             if (base instanceof StairRotation s) {
                 obj.add("top", toArray(s.getTop()));
                 obj.add("bottom", toArray(s.getBottom()));
+                if (rm.getType() == RotationType.OTHER) {
+                    obj.addProperty("type", "STAIR");
+                }
             } else if (base instanceof PillarRotation p) {
                 obj.addProperty("x", p.getX());
                 obj.addProperty("y", p.getY());
                 obj.addProperty("z", p.getZ());
+                if (rm.getType() == RotationType.OTHER) {
+                    obj.addProperty("type", "PILLAR");
+                }
             } else if (base instanceof FourRotation f) {
                 obj.add("metas", toArray(f.getMetas()));
+                if (rm.getType() == RotationType.OTHER) {
+                    obj.addProperty("type", "FOUR");
+                }
             }
             byType.get(rm.getType()).add(e.getKey(), obj);
         }
         for (RotationType t : RotationType.values()) {
             File file = new File(dir, t.name().toLowerCase() + ".json");
             try (FileWriter w = new FileWriter(file)) {
-                w.write("// Rotation mappings for " + t.name().toLowerCase() + "\n");
+                String header = "// Rotation mappings for " + t.name().toLowerCase();
+                if (t == RotationType.OTHER) {
+                    header += "\n" +
+                            "// type values: STAIR (top/bottom arrays), PILLAR (x/y/z metas), FOUR (metas array)" +
+                            "\n" +
+                            "// Example: \"mod:block\": { \"type\": \"FOUR\", \"metas\": [0,1,2,3] }";
+                }
+                w.write(header + "\n");
                 gson.toJson(byType.get(t), w);
             } catch (IOException ignore) {}
         }
@@ -163,5 +181,15 @@ public class RotationMappings {
                 mappings.put(name, mapping);
             }
         }
+    }
+
+    /** Add or replace a mapping entry. */
+    public void put(String name, RotationMapping mapping) {
+        mappings.put(name, mapping);
+    }
+
+    /** Persist current mappings to disk. */
+    public void save() {
+        saveAll();
     }
 }
