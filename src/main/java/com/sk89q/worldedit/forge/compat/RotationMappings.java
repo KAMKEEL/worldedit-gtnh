@@ -10,6 +10,11 @@ import net.minecraft.block.BlockFenceGate;
 import net.minecraft.block.BlockRotatedPillar;
 import net.minecraft.block.BlockStairs;
 import net.minecraft.block.BlockButton;
+import net.minecraft.block.BlockDoor;
+import net.minecraft.block.BlockTrapDoor;
+
+import com.sk89q.worldedit.forge.compat.DoorRotation;
+import com.sk89q.worldedit.forge.compat.TrapdoorRotation;
 
 import java.io.File;
 import java.io.FileReader;
@@ -96,6 +101,10 @@ public class RotationMappings {
             case "FENCE_GATE":
                 int[] m = arr(obj.getAsJsonArray("metas"));
                 return new RotationMapping(fileType, new FourRotation() {{ setMetas(m); }});
+            case "DOOR":
+                return new RotationMapping(fileType, new DoorRotation());
+            case "TRAP_DOOR":
+                return new RotationMapping(fileType, new TrapdoorRotation());
             default:
                 return null;
         }
@@ -140,6 +149,14 @@ public class RotationMappings {
                 if (rm.getType() == RotationType.OTHER) {
                     obj.addProperty("type", "FOUR");
                 }
+            } else if (base instanceof DoorRotation) {
+                if (rm.getType() == RotationType.OTHER) {
+                    obj.addProperty("type", "DOOR");
+                }
+            } else if (base instanceof TrapdoorRotation) {
+                if (rm.getType() == RotationType.OTHER) {
+                    obj.addProperty("type", "TRAP_DOOR");
+                }
             }
             byType.get(rm.getType()).add(e.getKey(), obj);
         }
@@ -149,7 +166,7 @@ public class RotationMappings {
                 String header = "// Rotation mappings for " + t.name().toLowerCase();
                 if (t == RotationType.OTHER) {
                     header += "\n" +
-                            "// type values: STAIR (top/bottom arrays), PILLAR (x/y/z metas), FOUR (metas array)" +
+                            "// type values: STAIR (top/bottom arrays), PILLAR (x/y/z metas), FOUR (metas array), DOOR, TRAP_DOOR" +
                             "\n" +
                             "// Example: \"mod:block\": { \"type\": \"FOUR\", \"metas\": [0,1,2,3] }";
                 }
@@ -176,6 +193,10 @@ public class RotationMappings {
             } else if (block instanceof BlockFenceGate || block instanceof BlockButton) {
                 FourRotation fr = RotationUtils.defaultFour(block instanceof BlockButton);
                 mapping = new RotationMapping(block instanceof BlockFenceGate ? RotationType.FENCE_GATE : RotationType.OTHER, fr);
+            } else if (block instanceof BlockDoor) {
+                mapping = new RotationMapping(RotationType.DOOR, new DoorRotation());
+            } else if (block instanceof BlockTrapDoor) {
+                mapping = new RotationMapping(RotationType.TRAP_DOOR, new TrapdoorRotation());
             }
             if (mapping != null) {
                 mappings.put(name, mapping);

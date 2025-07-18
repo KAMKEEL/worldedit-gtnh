@@ -15,6 +15,8 @@ import com.sk89q.worldedit.forge.compat.RotationType;
 import com.sk89q.worldedit.forge.compat.StairRotation;
 import com.sk89q.worldedit.forge.compat.PillarRotation;
 import com.sk89q.worldedit.forge.compat.FourRotation;
+import com.sk89q.worldedit.forge.compat.TrapdoorRotation;
+import com.sk89q.worldedit.forge.compat.DoorRotation;
 import org.junit.Test;
 
 /** Tests for {@link RotationMappings}. */
@@ -28,6 +30,8 @@ public class RotationMappingsTest {
         assertNotNull(cfg);
         File f = new File(dir, "mappings/stairs.json");
         assertTrue("config file missing", f.exists());
+        assertTrue(new File(dir, "mappings/trap_door.json").exists());
+        assertTrue(new File(dir, "mappings/door.json").exists());
 
         Gson gson = GsonUtil.createBuilder().create();
         try (java.io.FileReader r = new java.io.FileReader(f)) {
@@ -176,5 +180,17 @@ public class RotationMappingsTest {
         int meta = 1;
         int result = RotationUtils.rotateMeta(RotationType.DOOR, -1, meta);
         assertEquals("door reverse", 0, result);
+    }
+
+    @Test
+    public void testTrapdoorRotationClass() {
+        TrapdoorRotation tr = new TrapdoorRotation();
+        assertEquals(0, tr.rotate(1, 2));
+    }
+
+    @Test
+    public void testDoorRotationClass() {
+        DoorRotation dr = new DoorRotation();
+        assertEquals(5, dr.rotate(4, 1));
     }
 }
