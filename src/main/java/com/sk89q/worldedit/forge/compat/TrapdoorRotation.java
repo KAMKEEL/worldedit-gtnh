@@ -31,8 +31,8 @@ public class TrapdoorRotation implements RotationBase {
     public int rotate(int meta, int steps) {
         int extras = meta & ~mask;
         int data = meta & mask;
-        int s = ((steps % 4) + 4) % 4;
-        for (int i=0; i<s; i++) {
+        int s = Math.abs(steps) % 4;
+        for (int i = 0; i < s; i++) {
             data = steps > 0 ? RotationUtils.rotateTrapdoor90(data)
                              : RotationUtils.rotateTrapdoor90Reverse(data);
         }

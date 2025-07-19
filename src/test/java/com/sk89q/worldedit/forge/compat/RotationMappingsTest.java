@@ -349,6 +349,20 @@ public class RotationMappingsTest {
     @Test
     public void testTrapdoorRotationClass() {
         TrapdoorRotation tr = new TrapdoorRotation();
-        assertEquals(0, tr.rotate(1, 2));
+        // forward rotation
+        assertEquals(3, tr.rotate(0, 1));
+        // reverse rotation
+        assertEquals(2, tr.rotate(0, -1));
+        // open state preserved
+        assertEquals(7, tr.rotate(4, 1));
+    }
+
+    @Test
+    public void testTrapdoorDefaultArrays() {
+        TrapdoorRotation tr = RotationUtils.defaultTrapdoor();
+        assertArrayEquals(new int[]{0,1,2,3}, tr.getBottomClosed());
+        assertArrayEquals(new int[]{4,5,6,7}, tr.getBottomOpen());
+        assertArrayEquals(new int[]{8,9,10,11}, tr.getTopClosed());
+        assertArrayEquals(new int[]{12,13,14,15}, tr.getTopOpen());
     }
 }
