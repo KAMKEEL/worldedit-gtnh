@@ -87,45 +87,6 @@ public final class RotationUtils {
         return bigMeta ? result + 8 : result;
     }
 
-    public static int rotateDoor90(int data) {
-        if ((data & 0x8) != 0) {
-            return data; // top half stores no orientation
-        }
-        int extra = data & ~0x3;
-        int without = data & 0x3;
-        switch (without) {
-            case 0:
-                return 1 | extra;
-            case 1:
-                return 2 | extra;
-            case 2:
-                return 3 | extra;
-            case 3:
-                return 0 | extra;
-            default:
-                return data;
-        }
-    }
-
-    public static int rotateDoor90Reverse(int data) {
-        if ((data & 0x8) != 0) {
-            return data;
-        }
-        int extra = data & ~0x3;
-        int without = data & 0x3;
-        switch (without) {
-            case 1:
-                return 0 | extra;
-            case 2:
-                return 1 | extra;
-            case 3:
-                return 2 | extra;
-            case 0:
-                return 3 | extra;
-            default:
-                return data;
-        }
-    }
 
     public static int rotateTrapdoor90(int data) {
         int without = data & ~0x3;
@@ -188,9 +149,6 @@ public final class RotationUtils {
                     break;
                 case PILLAR:
                     data = rotatePillar90(data);
-                    break;
-                case DOOR:
-                    data = ticks > 0 ? rotateDoor90(data) : rotateDoor90Reverse(data);
                     break;
                 case TRAP_DOOR:
                     data = ticks > 0 ? rotateTrapdoor90(data) : rotateTrapdoor90Reverse(data);
@@ -262,5 +220,9 @@ public final class RotationUtils {
             default: out = dir; break;
         }
         return out | pressed;
+    }
+
+    public static TrapdoorRotation defaultTrapdoor() {
+        return new TrapdoorRotation();
     }
 }

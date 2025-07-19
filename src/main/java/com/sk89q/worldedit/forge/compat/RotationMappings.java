@@ -53,7 +53,6 @@ public class RotationMappings {
 
     private void loadAll() {
         for (RotationType type : RotationType.values()) {
-            if (type == RotationType.DOOR) continue;
             File file = new File(dir, type.name().toLowerCase() + ".json");
             loadFile(file, type);
         }
@@ -111,7 +110,18 @@ public class RotationMappings {
                 int[] m = arr(obj.getAsJsonArray("metas"));
                 return new RotationMapping(fileType, new FourRotation() {{ setMetas(m); }});
             case "TRAP_DOOR":
-                return new RotationMapping(fileType, new TrapdoorRotation());
+                TrapdoorRotation tr = new TrapdoorRotation();
+                if (obj.has("bottom")) {
+                    JsonObject b = obj.getAsJsonObject("bottom");
+                    if (b.has("closed")) tr.setBottomClosed(arr(b.getAsJsonArray("closed")));
+                    if (b.has("open")) tr.setBottomOpen(arr(b.getAsJsonArray("open")));
+                }
+                if (obj.has("top")) {
+                    JsonObject t = obj.getAsJsonObject("top");
+                    if (t.has("closed")) tr.setTopClosed(arr(t.getAsJsonArray("closed")));
+                    if (t.has("open")) tr.setTopOpen(arr(t.getAsJsonArray("open")));
+                }
+                return new RotationMapping(fileType, tr);
             default:
                 return null;
         }
@@ -132,7 +142,6 @@ public class RotationMappings {
     private void saveAll() {
         Map<RotationType, JsonObject> byType = new HashMap<>();
         for (RotationType t : RotationType.values()) {
-            if (t == RotationType.DOOR) continue;
             byType.put(t, new JsonObject());
         }
         for (Map.Entry<String, RotationMapping> e : mappings.entrySet()) {
@@ -160,7 +169,15 @@ public class RotationMappings {
                 if (rm.getType() == RotationType.OTHER) {
                     obj.addProperty("type", "FOUR");
                 }
-            } else if (base instanceof TrapdoorRotation) {
+            } else if (base instanceof TrapdoorRotation t) {
+                JsonObject top = new JsonObject();
+                top.add("closed", toArray(t.getTopClosed()));
+                top.add("open", toArray(t.getTopOpen()));
+                JsonObject bottom = new JsonObject();
+                bottom.add("closed", toArray(t.getBottomClosed()));
+                bottom.add("open", toArray(t.getBottomOpen()));
+                obj.add("top", top);
+                obj.add("bottom", bottom);
                 if (rm.getType() == RotationType.OTHER) {
                     obj.addProperty("type", "TRAP_DOOR");
                 }
@@ -168,7 +185,6 @@ public class RotationMappings {
             byType.get(rm.getType()).add(e.getKey(), obj);
         }
         for (RotationType t : RotationType.values()) {
-            if (t == RotationType.DOOR) continue;
             File file = new File(dir, t.name().toLowerCase() + ".json");
             try (FileWriter w = new FileWriter(file)) {
                 String header = "// Rotation mappings for " + t.name().toLowerCase();
@@ -202,7 +218,8 @@ public class RotationMappings {
                 FourRotation fr = RotationUtils.defaultFour(block instanceof BlockButton);
                 mapping = new RotationMapping(block instanceof BlockFenceGate ? RotationType.FENCE_GATE : RotationType.OTHER, fr);
             } else if (block instanceof BlockTrapDoor) {
-                mapping = new RotationMapping(RotationType.TRAP_DOOR, new TrapdoorRotation());
+                TrapdoorRotation tr = RotationUtils.defaultTrapdoor();
+                mapping = new RotationMapping(RotationType.TRAP_DOOR, tr);
             }
             if (mapping != null) {
                 mappings.put(name, mapping);

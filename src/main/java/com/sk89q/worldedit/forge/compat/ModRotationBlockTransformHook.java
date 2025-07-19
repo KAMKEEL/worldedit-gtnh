@@ -11,7 +11,7 @@ import com.sk89q.worldedit.math.transform.Transform;
 import com.sk89q.worldedit.forge.compat.RotationMappings;
 
 /**
- * Fallback rotation handler for modded stairs, pillars, doors and trap doors.
+ * Fallback rotation handler for modded stairs, pillars, fence gates and trap doors.
  */
 public class ModRotationBlockTransformHook implements BlockTransformHook {
 

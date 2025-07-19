@@ -6,7 +6,6 @@ package com.sk89q.worldedit.forge.compat;
 public enum RotationType {
     STAIRS,
     PILLAR,
-    DOOR,
     TRAP_DOOR,
     FENCE_GATE,
     OTHER

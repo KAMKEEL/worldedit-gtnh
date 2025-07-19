@@ -16,7 +16,6 @@ import com.sk89q.worldedit.forge.compat.StairRotation;
 import com.sk89q.worldedit.forge.compat.PillarRotation;
 import com.sk89q.worldedit.forge.compat.FourRotation;
 import com.sk89q.worldedit.forge.compat.TrapdoorRotation;
-import com.sk89q.worldedit.forge.compat.DoorRotation;
 import org.junit.Test;
 
 /** Tests for {@link RotationMappings}. */
@@ -51,9 +50,19 @@ public class RotationMappingsTest {
             assertTrue(first.startsWith("//"));
         }
         File trapFile = new File(dir, "mappings/trap_door.json");
+        com.google.gson.JsonObject trapJson;
         try (java.io.BufferedReader br = new java.io.BufferedReader(new java.io.FileReader(trapFile))) {
             String first = br.readLine();
             assertTrue(first.startsWith("//"));
+            trapJson = new com.google.gson.JsonParser().parse(br).getAsJsonObject();
+        }
+        if (!trapJson.entrySet().isEmpty()) {
+            java.util.Map.Entry<String, com.google.gson.JsonElement> ent = trapJson.entrySet().iterator().next();
+            com.google.gson.JsonObject defaults = ent.getValue().getAsJsonObject();
+            assertTrue(defaults.getAsJsonObject("bottom").has("open"));
+            assertTrue(defaults.getAsJsonObject("bottom").has("closed"));
+            assertTrue(defaults.getAsJsonObject("top").has("open"));
+            assertTrue(defaults.getAsJsonObject("top").has("closed"));
         }
         File pillarFile = new File(dir, "mappings/pillar.json");
         try (java.io.BufferedReader br = new java.io.BufferedReader(new java.io.FileReader(pillarFile))) {
@@ -74,23 +83,8 @@ public class RotationMappingsTest {
         }
     }
 
-    @Test
-    public void testRotateDoorOpenMeta() {
-        int meta = 4; // north open bottom
-        AffineTransform rot = new AffineTransform();
-        rot = rot.rotateY(-Math.PI / 2);
-        int result = RotationUtils.rotateMeta(RotationType.DOOR, 1, meta);
-        assertEquals("door open meta rotated", 5, result);
-    }
 
-    @Test
-    public void testRotateDoorTopHalf() {
-        int meta = 8; // north top closed
-        int result = RotationUtils.rotateMeta(RotationType.DOOR, 1, meta);
-        assertEquals("door top half unchanged", 8, result);
-    }
-
-    // door and trapdoor defaults covered by rotateMeta tests
+    // trapdoor defaults covered by rotateMeta tests
 
     @Test
     public void testStairsBigMetaRotation() {
@@ -353,52 +347,8 @@ public class RotationMappingsTest {
     }
 
     @Test
-    public void testDoorForwardRotationAll() {
-        for (int meta = 0; meta < 16; meta++) {
-            int expected = RotationUtils.rotateDoor90(meta);
-            assertEquals("meta " + meta,
-                    expected,
-                    RotationUtils.rotateMeta(RotationType.DOOR, 1, meta));
-        }
-    }
-
-    @Test
-    public void testDoorReverseRotationAll() {
-        for (int meta = 0; meta < 16; meta++) {
-            int expected = RotationUtils.rotateDoor90Reverse(meta);
-            assertEquals("meta " + meta,
-                    expected,
-                    RotationUtils.rotateMeta(RotationType.DOOR, -1, meta));
-        }
-    }
-
-    @Test
-    public void testDoorDoubleRotationAll() {
-        for (int meta = 0; meta < 16; meta++) {
-            int expected = RotationUtils.rotateDoor90(
-                    RotationUtils.rotateDoor90(meta));
-            assertEquals("meta " + meta,
-                    expected,
-                    RotationUtils.rotateMeta(RotationType.DOOR, 2, meta));
-        }
-    }
-
-    @Test
-    public void testDoorNegativeRotation() {
-        int meta = 1;
-        int result = RotationUtils.rotateMeta(RotationType.DOOR, -1, meta);
-        assertEquals("door reverse", 0, result);
-    }
-
-    @Test
     public void testTrapdoorRotationClass() {
         TrapdoorRotation tr = new TrapdoorRotation();
         assertEquals(0, tr.rotate(1, 2));
-    }
-
-    @Test
-    public void testDoorRotationClass() {
-        DoorRotation dr = new DoorRotation();
-        assertEquals(5, dr.rotate(4, 1));
     }
 }
