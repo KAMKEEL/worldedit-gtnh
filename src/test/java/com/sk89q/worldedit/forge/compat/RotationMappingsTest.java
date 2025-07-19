@@ -1,6 +1,10 @@
 package com.sk89q.worldedit.forge.compat;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.nio.file.Files;
@@ -9,7 +13,10 @@ import java.util.Map;
 import org.junit.Test;
 
 import com.google.gson.Gson;
-import com.sk89q.worldedit.forge.compat.rotation.*;
+import com.sk89q.worldedit.forge.compat.rotation.RotationMapping;
+import com.sk89q.worldedit.forge.compat.rotation.RotationMappings;
+import com.sk89q.worldedit.forge.compat.rotation.RotationType;
+import com.sk89q.worldedit.forge.compat.rotation.RotationUtils;
 import com.sk89q.worldedit.forge.compat.rotation.types.FourRotation;
 import com.sk89q.worldedit.forge.compat.rotation.types.PillarRotation;
 import com.sk89q.worldedit.forge.compat.rotation.types.StairRotation;
