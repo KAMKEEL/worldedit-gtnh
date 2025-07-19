@@ -1,19 +1,5 @@
 package com.sk89q.worldedit.forge.compat.rotation;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.sk89q.worldedit.forge.compat.rotation.types.*;
-import com.sk89q.worldedit.util.gson.GsonUtil;
-import cpw.mods.fml.common.registry.GameData;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockFenceGate;
-import net.minecraft.block.BlockRotatedPillar;
-import net.minecraft.block.BlockStairs;
-import net.minecraft.block.BlockButton;
-import net.minecraft.block.BlockTrapDoor;
-
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -22,12 +8,31 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockButton;
+import net.minecraft.block.BlockFenceGate;
+import net.minecraft.block.BlockRotatedPillar;
+import net.minecraft.block.BlockStairs;
+import net.minecraft.block.BlockTrapDoor;
+
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.sk89q.worldedit.forge.compat.rotation.types.*;
+import com.sk89q.worldedit.util.gson.GsonUtil;
+
+import cpw.mods.fml.common.registry.GameData;
+
 /** Manages loading and saving rotation mappings. */
 public class RotationMappings {
+
     private static RotationMappings instance;
 
     private final File dir;
-    private final Gson gson = GsonUtil.createBuilder().setPrettyPrinting().create();
+    private final Gson gson = GsonUtil.createBuilder()
+        .setPrettyPrinting()
+        .create();
     private final Map<String, RotationMapping> mappings = new HashMap<>();
 
     private RotationMappings(File dir) {
@@ -53,7 +58,10 @@ public class RotationMappings {
 
     private void loadAll() {
         for (RotationType type : RotationType.values()) {
-            File file = new File(dir, type.name().toLowerCase() + ".json");
+            File file = new File(
+                dir,
+                type.name()
+                    .toLowerCase() + ".json");
             loadFile(file, type);
         }
         if (mappings.isEmpty()) {
@@ -68,7 +76,8 @@ public class RotationMappings {
             JsonObject root = gson.fromJson(r, JsonObject.class);
             if (root == null) return;
             for (Map.Entry<String, JsonElement> e : root.entrySet()) {
-                JsonObject obj = e.getValue().getAsJsonObject();
+                JsonObject obj = e.getValue()
+                    .getAsJsonObject();
                 RotationMapping rm = parseMapping(type, obj);
                 if (rm != null) {
                     mappings.put(e.getKey(), rm);
@@ -78,37 +87,56 @@ public class RotationMappings {
     }
 
     private RotationMapping parseMapping(RotationType fileType, JsonObject obj) {
-        String as = fileType == RotationType.OTHER && obj.has("type")
-                ? obj.get("type").getAsString().toUpperCase()
-                : fileType.name();
+        String as = fileType == RotationType.OTHER && obj.has("type") ? obj.get("type")
+            .getAsString()
+            .toUpperCase() : fileType.name();
 
         switch (as) {
             case "STAIR":
             case "STAIRS":
                 int[] top = arr(obj.getAsJsonArray("top"));
                 int[] bottom = arr(obj.getAsJsonArray("bottom"));
-                return new RotationMapping(fileType,
-                        new StairRotation() {{ setTop(top); setBottom(bottom); }});
+                return new RotationMapping(fileType, new StairRotation() {
+
+                    {
+                        setTop(top);
+                        setBottom(bottom);
+                    }
+                });
             case "PILLAR":
                 PillarRotation p = new PillarRotation();
                 if (obj.has("groups")) {
                     JsonObject gs = obj.getAsJsonObject("groups");
-                    int[][] arr = new int[gs.entrySet().size()][3];
+                    int[][] arr = new int[gs.entrySet()
+                        .size()][3];
                     int idx = 0;
                     for (Map.Entry<String, JsonElement> e : gs.entrySet()) {
-                        arr[idx++] = arr(e.getValue().getAsJsonArray());
+                        arr[idx++] = arr(
+                            e.getValue()
+                                .getAsJsonArray());
                     }
                     p.setGroups(arr);
                 } else {
-                    p.setX(obj.get("x").getAsInt());
-                    p.setY(obj.get("y").getAsInt());
-                    p.setZ(obj.get("z").getAsInt());
+                    p.setX(
+                        obj.get("x")
+                            .getAsInt());
+                    p.setY(
+                        obj.get("y")
+                            .getAsInt());
+                    p.setZ(
+                        obj.get("z")
+                            .getAsInt());
                 }
                 return new RotationMapping(fileType, p);
             case "FOUR":
             case "FENCE_GATE":
                 int[] m = arr(obj.getAsJsonArray("metas"));
-                return new RotationMapping(fileType, new FourRotation() {{ setMetas(m); }});
+                return new RotationMapping(fileType, new FourRotation() {
+
+                    {
+                        setMetas(m);
+                    }
+                });
             case "TRAP_DOOR":
                 TrapdoorRotation tr = new TrapdoorRotation();
                 if (obj.has("bottom")) {
@@ -129,7 +157,8 @@ public class RotationMappings {
 
     private int[] arr(JsonArray a) {
         int[] out = new int[a.size()];
-        for (int i=0;i<a.size();i++) out[i] = a.get(i).getAsInt();
+        for (int i = 0; i < a.size(); i++) out[i] = a.get(i)
+            .getAsInt();
         return out;
     }
 
@@ -182,17 +211,22 @@ public class RotationMappings {
                     obj.addProperty("type", "TRAP_DOOR");
                 }
             }
-            byType.get(rm.getType()).add(e.getKey(), obj);
+            byType.get(rm.getType())
+                .add(e.getKey(), obj);
         }
         for (RotationType t : RotationType.values()) {
-            File file = new File(dir, t.name().toLowerCase() + ".json");
+            File file = new File(
+                dir,
+                t.name()
+                    .toLowerCase() + ".json");
             try (FileWriter w = new FileWriter(file)) {
-                String header = "// Rotation mappings for " + t.name().toLowerCase();
+                String header = "// Rotation mappings for " + t.name()
+                    .toLowerCase();
                 if (t == RotationType.OTHER) {
-                    header += "\n" +
-                            "// type values: STAIR (top/bottom arrays), PILLAR (x/y/z metas), FOUR (metas array), TRAP_DOOR" +
-                            "\n" +
-                            "// Example: \"mod:block\": { \"type\": \"FOUR\", \"metas\": [0,1,2,3] }";
+                    header += "\n"
+                        + "// type values: STAIR (top/bottom arrays), PILLAR (x/y/z metas), FOUR (metas array), TRAP_DOOR"
+                        + "\n"
+                        + "// Example: \"mod:block\": { \"type\": \"FOUR\", \"metas\": [0,1,2,3] }";
                 }
                 w.write(header + "\n");
                 gson.toJson(byType.get(t), w);
@@ -201,10 +235,12 @@ public class RotationMappings {
     }
 
     private void generateDefaults() {
-        Iterator<?> it = GameData.getBlockRegistry().iterator();
+        Iterator<?> it = GameData.getBlockRegistry()
+            .iterator();
         while (it.hasNext()) {
             Block block = (Block) it.next();
-            Object identifier = GameData.getBlockRegistry().getNameForObject(block);
+            Object identifier = GameData.getBlockRegistry()
+                .getNameForObject(block);
             String name = identifier == null ? null : identifier.toString();
             if (name == null || name.startsWith("minecraft:")) continue;
             RotationMapping mapping = null;
@@ -216,7 +252,9 @@ public class RotationMappings {
                 mapping = new RotationMapping(RotationType.PILLAR, pr);
             } else if (block instanceof BlockFenceGate || block instanceof BlockButton) {
                 FourRotation fr = RotationUtils.defaultFour(block instanceof BlockButton);
-                mapping = new RotationMapping(block instanceof BlockFenceGate ? RotationType.FENCE_GATE : RotationType.OTHER, fr);
+                mapping = new RotationMapping(
+                    block instanceof BlockFenceGate ? RotationType.FENCE_GATE : RotationType.OTHER,
+                    fr);
             } else if (block instanceof BlockTrapDoor) {
                 TrapdoorRotation tr = RotationUtils.defaultTrapdoor();
                 mapping = new RotationMapping(RotationType.TRAP_DOOR, tr);

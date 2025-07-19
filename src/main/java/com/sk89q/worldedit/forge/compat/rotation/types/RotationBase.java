@@ -4,6 +4,7 @@ import com.sk89q.worldedit.math.transform.AffineTransform;
 
 /** Base interface for rotation mappings. */
 public interface RotationBase {
+
     /**
      * Rotate the given metadata by the specified number of 90-degree steps.
      */
@@ -14,7 +15,8 @@ public interface RotationBase {
      */
     default int transform(int meta, AffineTransform transform) {
         // Fallback uses rotate only
-        double yRot = -transform.getRotations().getY();
+        double yRot = -transform.getRotations()
+            .getY();
         int ticks = Math.round((float) (yRot / 90));
         return rotate(meta, ticks);
     }

@@ -5,23 +5,34 @@ import com.sk89q.worldedit.math.transform.AffineTransform;
 
 /** Rotation data for stairs with separate top and bottom arrays. */
 public class StairRotation implements RotationBase {
+
     private int[] top = new int[4];
     private int[] bottom = new int[4];
 
-    public int[] getTop() { return top; }
-    public void setTop(int[] t) { this.top = t; }
-    public int[] getBottom() { return bottom; }
-    public void setBottom(int[] b) { this.bottom = b; }
+    public int[] getTop() {
+        return top;
+    }
 
-    private static final Vector[] DIRS = {
-        new Vector(0,0,-1), // north
-        new Vector(1,0,0),  // east
-        new Vector(0,0,1),  // south
-        new Vector(-1,0,0)  // west
+    public void setTop(int[] t) {
+        this.top = t;
+    }
+
+    public int[] getBottom() {
+        return bottom;
+    }
+
+    public void setBottom(int[] b) {
+        this.bottom = b;
+    }
+
+    private static final Vector[] DIRS = { new Vector(0, 0, -1), // north
+        new Vector(1, 0, 0), // east
+        new Vector(0, 0, 1), // south
+        new Vector(-1, 0, 0) // west
     };
 
     private int find(int meta, int[] arr) {
-        for (int i=0;i<arr.length;i++) if (arr[i]==meta) return i;
+        for (int i = 0; i < arr.length; i++) if (arr[i] == meta) return i;
         return -1;
     }
 
@@ -53,12 +64,18 @@ public class StairRotation implements RotationBase {
             if (idx == -1) return meta;
             arr = top;
         }
-        Vector out = transform.apply(DIRS[idx]).subtract(transform.apply(Vector.ZERO)).normalize();
+        Vector out = transform.apply(DIRS[idx])
+            .subtract(transform.apply(Vector.ZERO))
+            .normalize();
         double best = -2;
         int bestIdx = idx;
-        for (int i=0;i<4;i++) {
-            double dot = DIRS[i].normalize().dot(out);
-            if (dot > best) { best = dot; bestIdx = i; }
+        for (int i = 0; i < 4; i++) {
+            double dot = DIRS[i].normalize()
+                .dot(out);
+            if (dot > best) {
+                best = dot;
+                bestIdx = i;
+            }
         }
         int result = arr[bestIdx];
         return big ? result + 8 : result;

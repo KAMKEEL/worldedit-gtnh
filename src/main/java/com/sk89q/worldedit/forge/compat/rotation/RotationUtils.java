@@ -1,14 +1,15 @@
 package com.sk89q.worldedit.forge.compat.rotation;
 
+import java.util.function.IntUnaryOperator;
+
 import com.sk89q.worldedit.forge.compat.rotation.types.FourRotation;
 import com.sk89q.worldedit.forge.compat.rotation.types.PillarRotation;
 import com.sk89q.worldedit.forge.compat.rotation.types.StairRotation;
 import com.sk89q.worldedit.forge.compat.rotation.types.TrapdoorRotation;
 
-import java.util.function.IntUnaryOperator;
-
 /** Utility methods for rotation mappings. */
 public final class RotationUtils {
+
     private RotationUtils() {}
 
     public static int rotatePillar90(int data) {
@@ -91,7 +92,6 @@ public final class RotationUtils {
         }
         return bigMeta ? result + 8 : result;
     }
-
 
     public static int rotateTrapdoor90(int data) {
         int without = data & ~0x3;
@@ -177,7 +177,7 @@ public final class RotationUtils {
 
     public static PillarRotation defaultPillar() {
         PillarRotation pr = new PillarRotation();
-        pr.setGroups(new int[][] { {0,4,8}, {1,5,9} });
+        pr.setGroups(new int[][] { { 0, 4, 8 }, { 1, 5, 9 } });
         return pr;
     }
 
@@ -192,7 +192,7 @@ public final class RotationUtils {
     private static int[] fillDirectional(int start, IntUnaryOperator rot) {
         int[] arr = new int[4];
         int meta = start;
-        for (int i=0;i<4;i++) {
+        for (int i = 0; i < 4; i++) {
             arr[i] = meta;
             meta = rot.applyAsInt(meta);
         }
@@ -204,11 +204,21 @@ public final class RotationUtils {
         int pressed = data & 8;
         int out;
         switch (dir) {
-            case 1: out = 3; break; // east -> south
-            case 3: out = 2; break; // south -> west
-            case 2: out = 4; break; // west -> north
-            case 4: out = 1; break; // north -> east
-            default: out = dir; break;
+            case 1:
+                out = 3;
+                break; // east -> south
+            case 3:
+                out = 2;
+                break; // south -> west
+            case 2:
+                out = 4;
+                break; // west -> north
+            case 4:
+                out = 1;
+                break; // north -> east
+            default:
+                out = dir;
+                break;
         }
         return out | pressed;
     }
@@ -218,11 +228,21 @@ public final class RotationUtils {
         int pressed = data & 8;
         int out;
         switch (dir) {
-            case 3: out = 1; break; // south -> east
-            case 2: out = 3; break; // west -> south
-            case 4: out = 2; break; // north -> west
-            case 1: out = 4; break; // east -> north
-            default: out = dir; break;
+            case 3:
+                out = 1;
+                break; // south -> east
+            case 2:
+                out = 3;
+                break; // west -> south
+            case 4:
+                out = 2;
+                break; // north -> west
+            case 1:
+                out = 4;
+                break; // east -> north
+            default:
+                out = dir;
+                break;
         }
         return out | pressed;
     }

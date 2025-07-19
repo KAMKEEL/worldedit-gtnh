@@ -3,15 +3,17 @@ package com.sk89q.worldedit.forge.compat;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.sk89q.worldedit.forge.compat.rotation.types.RotationBase;
-import com.sk89q.worldedit.forge.compat.rotation.RotationMapping;
-import cpw.mods.fml.common.registry.GameData;
 import net.minecraft.block.Block;
+
 import com.sk89q.worldedit.blocks.BaseBlock;
 import com.sk89q.worldedit.extent.transform.BlockTransformHook;
+import com.sk89q.worldedit.forge.compat.rotation.RotationMapping;
+import com.sk89q.worldedit.forge.compat.rotation.RotationMappings;
+import com.sk89q.worldedit.forge.compat.rotation.types.RotationBase;
 import com.sk89q.worldedit.math.transform.AffineTransform;
 import com.sk89q.worldedit.math.transform.Transform;
-import com.sk89q.worldedit.forge.compat.rotation.RotationMappings;
+
+import cpw.mods.fml.common.registry.GameData;
 
 /**
  * Fallback rotation handler for modded stairs, pillars, fence gates and trap doors.
@@ -27,7 +29,8 @@ public class ModRotationBlockTransformHook implements BlockTransformHook {
         Block mcBlock = Block.getBlockById(id);
         RotationMapping result = null;
         if (mcBlock != null) {
-            Object identifier = GameData.getBlockRegistry().getNameForObject(mcBlock);
+            Object identifier = GameData.getBlockRegistry()
+                .getNameForObject(mcBlock);
             String name = identifier == null ? null : identifier.toString();
             if (name != null) {
                 RotationMappings cfg = RotationMappings.getInstance();

@@ -4,15 +4,18 @@ import com.sk89q.worldedit.math.transform.AffineTransform;
 
 /** Rotation mapping for pillar blocks. */
 public class PillarRotation implements RotationBase {
+
     /** Rotation groups in order [y,x,z]. */
-    private int[][] groups = { {0,4,8} };
+    private int[][] groups = { { 0, 4, 8 } };
     /** Orientation mask calculated from groups. */
     private int mask = 0xC;
 
     /**
      * Get the rotation groups.
      */
-    public int[][] getGroups() { return groups; }
+    public int[][] getGroups() {
+        return groups;
+    }
 
     /**
      * Replace the rotation groups and recompute orientation mask.
@@ -23,20 +26,44 @@ public class PillarRotation implements RotationBase {
     }
 
     // Legacy accessors for single-group configuration
-    public int getX() { return groups[0][1]; }
-    public void setX(int x) { groups[0][1] = x; computeMask(); }
-    public int getY() { return groups[0][0]; }
-    public void setY(int y) { groups[0][0] = y; computeMask(); }
-    public int getZ() { return groups[0][2]; }
-    public void setZ(int z) { groups[0][2] = z; computeMask(); }
+    public int getX() {
+        return groups[0][1];
+    }
+
+    public void setX(int x) {
+        groups[0][1] = x;
+        computeMask();
+    }
+
+    public int getY() {
+        return groups[0][0];
+    }
+
+    public void setY(int y) {
+        groups[0][0] = y;
+        computeMask();
+    }
+
+    public int getZ() {
+        return groups[0][2];
+    }
+
+    public void setZ(int z) {
+        groups[0][2] = z;
+        computeMask();
+    }
 
     private void computeMask() {
         int m = -1;
         boolean first = true;
         for (int[] g : groups) {
             int bits = g[0] | g[1] | g[2];
-            if (first) { m = bits; first = false; }
-            else { m &= bits; }
+            if (first) {
+                m = bits;
+                first = false;
+            } else {
+                m &= bits;
+            }
         }
         mask = m;
     }
@@ -62,7 +89,10 @@ public class PillarRotation implements RotationBase {
 
     @Override
     public int transform(int meta, AffineTransform transform) {
-        return rotate(meta,
-                Math.round((float)(-transform.getRotations().getY() / 90)));
+        return rotate(
+            meta,
+            Math.round(
+                (float) (-transform.getRotations()
+                    .getY() / 90)));
     }
 }
