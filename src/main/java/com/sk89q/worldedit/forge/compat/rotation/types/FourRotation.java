@@ -3,11 +3,15 @@ package com.sk89q.worldedit.forge.compat.rotation.types;
 import com.sk89q.worldedit.Vector;
 import com.sk89q.worldedit.math.transform.AffineTransform;
 
-/** Simple four-direction rotation mapping. */
+/**
+ * Simple four-direction rotation mapping.
+ */
 public class FourRotation implements RotationBase {
 
     private int[] metas = new int[4];
-    /** Mask of bits used for orientation detection. */
+    /**
+     * Mask of bits used for orientation detection.
+     */
     private int mask = 3;
 
     public int[] getMetas() {

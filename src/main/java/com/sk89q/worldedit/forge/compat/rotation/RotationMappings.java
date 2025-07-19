@@ -19,12 +19,18 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.sk89q.worldedit.forge.compat.rotation.types.*;
+import com.sk89q.worldedit.forge.compat.rotation.types.FourRotation;
+import com.sk89q.worldedit.forge.compat.rotation.types.PillarRotation;
+import com.sk89q.worldedit.forge.compat.rotation.types.RotationBase;
+import com.sk89q.worldedit.forge.compat.rotation.types.StairRotation;
+import com.sk89q.worldedit.forge.compat.rotation.types.TrapdoorRotation;
 import com.sk89q.worldedit.util.gson.GsonUtil;
 
 import cpw.mods.fml.common.registry.GameData;
 
-/** Manages loading and saving rotation mappings. */
+/**
+ * Manages loading and saving rotation mappings.
+ */
 public class RotationMappings {
 
     private static RotationMappings instance;
@@ -265,12 +271,16 @@ public class RotationMappings {
         }
     }
 
-    /** Add or replace a mapping entry. */
+    /**
+     * Add or replace a mapping entry.
+     */
     public void put(String name, RotationMapping mapping) {
         mappings.put(name, mapping);
     }
 
-    /** Persist current mappings to disk. */
+    /**
+     * Persist current mappings to disk.
+     */
     public void save() {
         saveAll();
     }

@@ -2,7 +2,9 @@ package com.sk89q.worldedit.forge.compat.rotation.types;
 
 import com.sk89q.worldedit.math.transform.AffineTransform;
 
-/** Base interface for rotation mappings. */
+/**
+ * Base interface for rotation mappings.
+ */
 public interface RotationBase {
 
     /**

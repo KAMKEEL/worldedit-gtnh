@@ -2,12 +2,18 @@ package com.sk89q.worldedit.forge.compat.rotation.types;
 
 import com.sk89q.worldedit.math.transform.AffineTransform;
 
-/** Rotation mapping for pillar blocks. */
+/**
+ * Rotation mapping for pillar blocks.
+ */
 public class PillarRotation implements RotationBase {
 
-    /** Rotation groups in order [y,x,z]. */
+    /**
+     * Rotation groups in order [y,x,z].
+     */
     private int[][] groups = { { 0, 4, 8 } };
-    /** Orientation mask calculated from groups. */
+    /**
+     * Orientation mask calculated from groups.
+     */
     private int mask = 0xC;
 
     /**

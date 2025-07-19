@@ -3,7 +3,9 @@ package com.sk89q.worldedit.forge.compat.rotation.types;
 import com.sk89q.worldedit.Vector;
 import com.sk89q.worldedit.math.transform.AffineTransform;
 
-/** Rotation data for stairs with separate top and bottom arrays. */
+/**
+ * Rotation data for stairs with separate top and bottom arrays.
+ */
 public class StairRotation implements RotationBase {
 
     private int[] top = new int[4];

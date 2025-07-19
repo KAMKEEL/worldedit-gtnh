@@ -2,7 +2,9 @@ package com.sk89q.worldedit.forge.compat.rotation;
 
 import com.sk89q.worldedit.forge.compat.rotation.types.RotationBase;
 
-/** Holds the rotation type and mapping data for a block. */
+/**
+ * Holds the rotation type and mapping data for a block.
+ */
 public class RotationMapping {
 
     private RotationType type;

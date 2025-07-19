@@ -7,7 +7,9 @@ import com.sk89q.worldedit.forge.compat.rotation.types.PillarRotation;
 import com.sk89q.worldedit.forge.compat.rotation.types.StairRotation;
 import com.sk89q.worldedit.forge.compat.rotation.types.TrapdoorRotation;
 
-/** Utility methods for rotation mappings. */
+/**
+ * Utility methods for rotation mappings.
+ */
 public final class RotationUtils {
 
     private RotationUtils() {}
@@ -141,7 +143,9 @@ public final class RotationUtils {
         return orientation | extra;
     }
 
-    /** Rotate the given metadata according to the rotation type and transform. */
+    /**
+     * Rotate the given metadata according to the rotation type and transform.
+     */
     public static int rotateMeta(RotationType type, int ticks, int data) {
         if (ticks == 0) {
             return data;

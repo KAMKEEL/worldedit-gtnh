@@ -3,7 +3,9 @@ package com.sk89q.worldedit.forge.compat.rotation.types;
 import com.sk89q.worldedit.forge.compat.rotation.RotationUtils;
 import com.sk89q.worldedit.math.transform.AffineTransform;
 
-/** Rotation handling for trapdoors supporting open/top states. */
+/**
+ * Rotation handling for trapdoors supporting open/top states.
+ */
 public class TrapdoorRotation implements RotationBase {
 
     private int[] bottomClosed = { 0, 1, 2, 3 };
