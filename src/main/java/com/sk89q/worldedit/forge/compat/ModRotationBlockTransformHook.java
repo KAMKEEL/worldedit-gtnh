@@ -5,6 +5,7 @@ import java.util.Map;
 
 import com.sk89q.worldedit.forge.compat.rotation.types.RotationBase;
 import com.sk89q.worldedit.forge.compat.rotation.RotationMapping;
+import cpw.mods.fml.common.registry.GameData;
 import net.minecraft.block.Block;
 import com.sk89q.worldedit.blocks.BaseBlock;
 import com.sk89q.worldedit.extent.transform.BlockTransformHook;
@@ -26,7 +27,7 @@ public class ModRotationBlockTransformHook implements BlockTransformHook {
         Block mcBlock = Block.getBlockById(id);
         RotationMapping result = null;
         if (mcBlock != null) {
-            Object identifier = Block.blockRegistry.getNameForObject(mcBlock);
+            Object identifier = GameData.getBlockRegistry().getNameForObject(mcBlock);
             String name = identifier == null ? null : identifier.toString();
             if (name != null) {
                 RotationMappings cfg = RotationMappings.getInstance();

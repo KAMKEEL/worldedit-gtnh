@@ -6,6 +6,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.sk89q.worldedit.forge.compat.rotation.types.*;
 import com.sk89q.worldedit.util.gson.GsonUtil;
+import cpw.mods.fml.common.registry.GameData;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockFenceGate;
 import net.minecraft.block.BlockRotatedPillar;
@@ -200,10 +201,10 @@ public class RotationMappings {
     }
 
     private void generateDefaults() {
-        Iterator<?> it = Block.blockRegistry.iterator();
+        Iterator<?> it = GameData.getBlockRegistry().iterator();
         while (it.hasNext()) {
             Block block = (Block) it.next();
-            Object identifier = Block.blockRegistry.getNameForObject(block);
+            Object identifier = GameData.getBlockRegistry().getNameForObject(block);
             String name = identifier == null ? null : identifier.toString();
             if (name == null || name.startsWith("minecraft:")) continue;
             RotationMapping mapping = null;
