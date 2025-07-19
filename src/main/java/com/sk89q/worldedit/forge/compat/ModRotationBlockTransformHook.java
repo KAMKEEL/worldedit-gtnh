@@ -26,7 +26,10 @@ public class ModRotationBlockTransformHook implements BlockTransformHook {
             Object identifier = Block.blockRegistry.getNameForObject(mcBlock);
             String name = identifier == null ? null : identifier.toString();
             if (name != null) {
-                result = ModRotationConfig.getInstance().get(name);
+                ModRotationConfig cfg = ModRotationConfig.getInstance();
+                if (cfg != null) {
+                    result = cfg.get(name);
+                }
             }
         }
         cache.put(id, result);
