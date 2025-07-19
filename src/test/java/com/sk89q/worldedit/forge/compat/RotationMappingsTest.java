@@ -31,7 +31,7 @@ public class RotationMappingsTest {
         File f = new File(dir, "mappings/stairs.json");
         assertTrue("config file missing", f.exists());
         assertTrue(new File(dir, "mappings/trap_door.json").exists());
-        assertTrue(new File(dir, "mappings/door.json").exists());
+        assertFalse(new File(dir, "mappings/door.json").exists());
 
         Gson gson = GsonUtil.createBuilder().create();
         try (java.io.FileReader r = new java.io.FileReader(f)) {

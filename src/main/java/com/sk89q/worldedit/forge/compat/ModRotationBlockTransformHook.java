@@ -8,6 +8,7 @@ import com.sk89q.worldedit.blocks.BaseBlock;
 import com.sk89q.worldedit.extent.transform.BlockTransformHook;
 import com.sk89q.worldedit.math.transform.AffineTransform;
 import com.sk89q.worldedit.math.transform.Transform;
+import com.sk89q.worldedit.forge.compat.RotationMappings;
 
 /**
  * Fallback rotation handler for modded stairs, pillars, doors and trap doors.
@@ -26,7 +27,7 @@ public class ModRotationBlockTransformHook implements BlockTransformHook {
             Object identifier = Block.blockRegistry.getNameForObject(mcBlock);
             String name = identifier == null ? null : identifier.toString();
             if (name != null) {
-                ModRotationConfig cfg = ModRotationConfig.getInstance();
+                RotationMappings cfg = RotationMappings.getInstance();
                 if (cfg != null) {
                     result = cfg.get(name);
                 }

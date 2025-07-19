@@ -10,10 +10,8 @@ import net.minecraft.block.BlockFenceGate;
 import net.minecraft.block.BlockRotatedPillar;
 import net.minecraft.block.BlockStairs;
 import net.minecraft.block.BlockButton;
-import net.minecraft.block.BlockDoor;
 import net.minecraft.block.BlockTrapDoor;
 
-import com.sk89q.worldedit.forge.compat.DoorRotation;
 import com.sk89q.worldedit.forge.compat.TrapdoorRotation;
 
 import java.io.File;
@@ -55,6 +53,7 @@ public class RotationMappings {
 
     private void loadAll() {
         for (RotationType type : RotationType.values()) {
+            if (type == RotationType.DOOR) continue;
             File file = new File(dir, type.name().toLowerCase() + ".json");
             loadFile(file, type);
         }
@@ -111,8 +110,6 @@ public class RotationMappings {
             case "FENCE_GATE":
                 int[] m = arr(obj.getAsJsonArray("metas"));
                 return new RotationMapping(fileType, new FourRotation() {{ setMetas(m); }});
-            case "DOOR":
-                return new RotationMapping(fileType, new DoorRotation());
             case "TRAP_DOOR":
                 return new RotationMapping(fileType, new TrapdoorRotation());
             default:
@@ -135,6 +132,7 @@ public class RotationMappings {
     private void saveAll() {
         Map<RotationType, JsonObject> byType = new HashMap<>();
         for (RotationType t : RotationType.values()) {
+            if (t == RotationType.DOOR) continue;
             byType.put(t, new JsonObject());
         }
         for (Map.Entry<String, RotationMapping> e : mappings.entrySet()) {
@@ -162,10 +160,6 @@ public class RotationMappings {
                 if (rm.getType() == RotationType.OTHER) {
                     obj.addProperty("type", "FOUR");
                 }
-            } else if (base instanceof DoorRotation) {
-                if (rm.getType() == RotationType.OTHER) {
-                    obj.addProperty("type", "DOOR");
-                }
             } else if (base instanceof TrapdoorRotation) {
                 if (rm.getType() == RotationType.OTHER) {
                     obj.addProperty("type", "TRAP_DOOR");
@@ -174,12 +168,13 @@ public class RotationMappings {
             byType.get(rm.getType()).add(e.getKey(), obj);
         }
         for (RotationType t : RotationType.values()) {
+            if (t == RotationType.DOOR) continue;
             File file = new File(dir, t.name().toLowerCase() + ".json");
             try (FileWriter w = new FileWriter(file)) {
                 String header = "// Rotation mappings for " + t.name().toLowerCase();
                 if (t == RotationType.OTHER) {
                     header += "\n" +
-                            "// type values: STAIR (top/bottom arrays), PILLAR (x/y/z metas), FOUR (metas array), DOOR, TRAP_DOOR" +
+                            "// type values: STAIR (top/bottom arrays), PILLAR (x/y/z metas), FOUR (metas array), TRAP_DOOR" +
                             "\n" +
                             "// Example: \"mod:block\": { \"type\": \"FOUR\", \"metas\": [0,1,2,3] }";
                 }
@@ -206,8 +201,6 @@ public class RotationMappings {
             } else if (block instanceof BlockFenceGate || block instanceof BlockButton) {
                 FourRotation fr = RotationUtils.defaultFour(block instanceof BlockButton);
                 mapping = new RotationMapping(block instanceof BlockFenceGate ? RotationType.FENCE_GATE : RotationType.OTHER, fr);
-            } else if (block instanceof BlockDoor) {
-                mapping = new RotationMapping(RotationType.DOOR, new DoorRotation());
             } else if (block instanceof BlockTrapDoor) {
                 mapping = new RotationMapping(RotationType.TRAP_DOOR, new TrapdoorRotation());
             }
