@@ -80,21 +80,24 @@ public class ModRotationConfig {
             Object identifier = Block.blockRegistry.getNameForObject(block);
             String name = identifier == null ? null : identifier.toString();
             if (name == null) continue;
-            RotationType type = null;
+            RotationMapping mapping = null;
             if (block instanceof BlockStairs) {
-                type = RotationType.STAIRS;
+                mapping = new RotationMapping(RotationType.STAIRS,
+                        RotationUtils.defaultStairs());
             } else if (block instanceof BlockRotatedPillar) {
-                type = RotationType.PILLAR;
+                mapping = new RotationMapping(RotationType.PILLAR,
+                        RotationUtils.defaultPillar());
             } else if (block instanceof BlockDoor) {
-                type = RotationType.DOOR;
+                mapping = new RotationMapping(RotationType.DOOR,
+                        new DoorRotation());
             } else if (block instanceof BlockTrapDoor) {
-                type = RotationType.TRAP_DOOR;
+                mapping = new RotationMapping(RotationType.TRAP_DOOR,
+                        new TrapdoorRotation());
             } else if (block instanceof BlockFenceGate) {
-                type = RotationType.FENCE_GATE;
+                mapping = new RotationMapping(RotationType.FENCE_GATE,
+                        RotationUtils.defaultFour(false));
             }
-            if (type != null) {
-                RotationMapping mapping = new RotationMapping(type);
-                mapping.setMetas(RotationUtils.defaultMetaMap(type));
+            if (mapping != null) {
                 mappings.put(name, mapping);
             }
         }

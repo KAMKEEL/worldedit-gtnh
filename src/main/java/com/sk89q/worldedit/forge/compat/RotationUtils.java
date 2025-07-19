@@ -214,9 +214,7 @@ public final class RotationUtils {
 
     public static PillarRotation defaultPillar() {
         PillarRotation pr = new PillarRotation();
-        pr.setY(0);
-        pr.setX(4);
-        pr.setZ(8);
+        pr.setGroups(new int[][] { {0,4,8}, {1,5,9} });
         return pr;
     }
 

@@ -93,9 +93,19 @@ public class RotationMappings {
                         new StairRotation() {{ setTop(top); setBottom(bottom); }});
             case "PILLAR":
                 PillarRotation p = new PillarRotation();
-                p.setX(obj.get("x").getAsInt());
-                p.setY(obj.get("y").getAsInt());
-                p.setZ(obj.get("z").getAsInt());
+                if (obj.has("groups")) {
+                    JsonObject gs = obj.getAsJsonObject("groups");
+                    int[][] arr = new int[gs.entrySet().size()][3];
+                    int idx = 0;
+                    for (Map.Entry<String, JsonElement> e : gs.entrySet()) {
+                        arr[idx++] = arr(e.getValue().getAsJsonArray());
+                    }
+                    p.setGroups(arr);
+                } else {
+                    p.setX(obj.get("x").getAsInt());
+                    p.setY(obj.get("y").getAsInt());
+                    p.setZ(obj.get("z").getAsInt());
+                }
                 return new RotationMapping(fileType, p);
             case "FOUR":
             case "FENCE_GATE":
@@ -138,9 +148,12 @@ public class RotationMappings {
                     obj.addProperty("type", "STAIR");
                 }
             } else if (base instanceof PillarRotation p) {
-                obj.addProperty("x", p.getX());
-                obj.addProperty("y", p.getY());
-                obj.addProperty("z", p.getZ());
+                JsonObject groups = new JsonObject();
+                int idx = 0;
+                for (int[] g : p.getGroups()) {
+                    groups.add(String.valueOf(idx++), toArray(g));
+                }
+                obj.add("groups", groups);
                 if (rm.getType() == RotationType.OTHER) {
                     obj.addProperty("type", "PILLAR");
                 }

@@ -50,6 +50,16 @@ public class RotationMappingsTest {
             String first = br.readLine();
             assertTrue(first.startsWith("//"));
         }
+        File trapFile = new File(dir, "mappings/trap_door.json");
+        try (java.io.BufferedReader br = new java.io.BufferedReader(new java.io.FileReader(trapFile))) {
+            String first = br.readLine();
+            assertTrue(first.startsWith("//"));
+        }
+        File pillarFile = new File(dir, "mappings/pillar.json");
+        try (java.io.BufferedReader br = new java.io.BufferedReader(new java.io.FileReader(pillarFile))) {
+            String first = br.readLine();
+            assertTrue(first.startsWith("//"));
+        }
 
         // add a dummy custom mapping and verify type key
         RotationMapping custom = new RotationMapping(RotationType.OTHER, RotationUtils.defaultFour(true));
@@ -129,6 +139,60 @@ public class RotationMappingsTest {
         assertEquals("vertical pillar unchanged", 0, RotationUtils.rotateMeta(RotationType.PILLAR, 1, 0));
     }
 
+    @Test
+    public void testPillarGroupRotation() {
+        PillarRotation pr = RotationUtils.defaultPillar();
+        int[][] groups = pr.getGroups();
+        assertTrue(groups.length > 1);
+        int meta = groups[1][1]; // x from second group
+        int rotated = pr.rotate(meta, 1);
+        assertEquals(groups[1][2], rotated);
+    }
+
+    @Test
+    public void testPillarRotationAllSteps() {
+        PillarRotation pr = RotationUtils.defaultPillar();
+        int[][] groups = pr.getGroups();
+        int[] steps = {1, 2, 3, -1, -2, -3};
+        for (int[] g : groups) {
+            // vertical meta never changes
+            for (int s : steps) {
+                assertEquals(g[0], pr.rotate(g[0], s));
+            }
+            for (int s : steps) {
+                int expected = (Math.abs(s) % 2 == 0) ? g[1] : g[2];
+                assertEquals("x meta step " + s, expected, pr.rotate(g[1], s));
+                expected = (Math.abs(s) % 2 == 0) ? g[2] : g[1];
+                assertEquals("z meta step " + s, expected, pr.rotate(g[2], s));
+            }
+        }
+    }
+
+    @Test
+    public void testPillarTransform() {
+        PillarRotation pr = RotationUtils.defaultPillar();
+        AffineTransform rot = new AffineTransform().rotateY(-90);
+        int[][] groups = pr.getGroups();
+        for (int[] g : groups) {
+            assertEquals(g[2], pr.transform(g[1], rot));
+            assertEquals(g[1], pr.transform(g[2], rot));
+            assertEquals(g[0], pr.transform(g[0], rot));
+        }
+    }
+
+    @Test
+    public void testPillarUnknownExtraMeta() {
+        PillarRotation pr = RotationUtils.defaultPillar();
+        // 6 has x orientation plus unknown bits
+        assertEquals(6, pr.rotate(6, 1));
+    }
+
+    @Test
+    public void testPillarUnknownMeta() {
+        PillarRotation pr = RotationUtils.defaultPillar();
+        assertEquals(15, pr.rotate(15, 1));
+    }
+
 
     @Test
     public void testPillarDefault() {
@@ -136,6 +200,7 @@ public class RotationMappingsTest {
         assertEquals(0, pr.getY());
         assertEquals(4, pr.getX());
         assertEquals(8, pr.getZ());
+        assertEquals(2, pr.getGroups().length);
     }
 
     @Test
@@ -164,6 +229,26 @@ public class RotationMappingsTest {
     }
 
     @Test
+    public void testStairsReverseRotationAll() {
+        for (int meta = 0; meta < 16; meta++) {
+            int expected = RotationUtils.rotateStairs90Reverse(meta);
+            assertEquals("meta " + meta,
+                    expected,
+                    RotationUtils.rotateMeta(RotationType.STAIRS, -1, meta));
+        }
+    }
+
+    @Test
+    public void testStairsDoubleRotationAll() {
+        for (int meta = 0; meta < 16; meta++) {
+            int expected = RotationUtils.rotateStairs90(RotationUtils.rotateStairs90(meta));
+            assertEquals("meta " + meta,
+                    expected,
+                    RotationUtils.rotateMeta(RotationType.STAIRS, 2, meta));
+        }
+    }
+
+    @Test
     public void testFenceGateDefault() {
         FourRotation fr = RotationUtils.defaultFour(false);
         assertEquals(2, fr.getMetas()[0]);
@@ -178,6 +263,38 @@ public class RotationMappingsTest {
     }
 
     @Test
+    public void testFenceGateForwardRotationAll() {
+        for (int meta = 0; meta < 16; meta++) {
+            int expected = RotationUtils.rotateFenceGate90(meta);
+            assertEquals("meta " + meta,
+                    expected,
+                    RotationUtils.rotateMeta(RotationType.FENCE_GATE, 1, meta));
+        }
+    }
+
+    @Test
+    public void testFenceGateReverseRotationAll() {
+        for (int meta = 0; meta < 16; meta++) {
+            int expected = RotationUtils.rotateFenceGate90Reverse(meta);
+            assertEquals("meta " + meta,
+                    expected,
+                    RotationUtils.rotateMeta(RotationType.FENCE_GATE, -1, meta));
+        }
+    }
+
+    @Test
+    public void testFenceGateTripleRotationAll() {
+        for (int meta = 0; meta < 16; meta++) {
+            int expected = RotationUtils.rotateFenceGate90(
+                    RotationUtils.rotateFenceGate90(
+                            RotationUtils.rotateFenceGate90(meta)));
+            assertEquals("meta " + meta,
+                    expected,
+                    RotationUtils.rotateMeta(RotationType.FENCE_GATE, 3, meta));
+        }
+    }
+
+    @Test
     public void testFourRotationTransform() {
         FourRotation fr = RotationUtils.defaultFour(false);
         AffineTransform rot = new AffineTransform().rotateY(-90);
@@ -187,10 +304,83 @@ public class RotationMappingsTest {
     }
 
     @Test
+    public void testFourRotationTransformOpenStates() {
+        FourRotation fr = RotationUtils.defaultFour(false);
+        AffineTransform rot = new AffineTransform().rotateY(-90);
+        for (int meta = 0; meta < 16; meta++) {
+            assertEquals("meta " + meta,
+                    RotationUtils.rotateFenceGate90(meta),
+                    fr.transform(meta, rot));
+        }
+    }
+
+    @Test
     public void testTrapdoorDoubleRotation() {
         int meta = 1;
         int result = RotationUtils.rotateMeta(RotationType.TRAP_DOOR, 2, meta);
         assertEquals("trapdoor 180", 0, result);
+    }
+
+    @Test
+    public void testTrapdoorDoubleRotationAll() {
+        for (int meta = 0; meta < 16; meta++) {
+            int expected = RotationUtils.rotateTrapdoor90(
+                    RotationUtils.rotateTrapdoor90(meta));
+            assertEquals("meta " + meta,
+                    expected,
+                    RotationUtils.rotateMeta(RotationType.TRAP_DOOR, 2, meta));
+        }
+    }
+
+    @Test
+    public void testTrapdoorForwardRotationAll() {
+        for (int meta = 0; meta < 16; meta++) {
+            int expected = RotationUtils.rotateTrapdoor90(meta);
+            assertEquals("meta " + meta,
+                    expected,
+                    RotationUtils.rotateMeta(RotationType.TRAP_DOOR, 1, meta));
+        }
+    }
+
+    @Test
+    public void testTrapdoorReverseRotationAll() {
+        for (int meta = 0; meta < 16; meta++) {
+            int expected = RotationUtils.rotateTrapdoor90Reverse(meta);
+            assertEquals("meta " + meta,
+                    expected,
+                    RotationUtils.rotateMeta(RotationType.TRAP_DOOR, -1, meta));
+        }
+    }
+
+    @Test
+    public void testDoorForwardRotationAll() {
+        for (int meta = 0; meta < 16; meta++) {
+            int expected = RotationUtils.rotateDoor90(meta);
+            assertEquals("meta " + meta,
+                    expected,
+                    RotationUtils.rotateMeta(RotationType.DOOR, 1, meta));
+        }
+    }
+
+    @Test
+    public void testDoorReverseRotationAll() {
+        for (int meta = 0; meta < 16; meta++) {
+            int expected = RotationUtils.rotateDoor90Reverse(meta);
+            assertEquals("meta " + meta,
+                    expected,
+                    RotationUtils.rotateMeta(RotationType.DOOR, -1, meta));
+        }
+    }
+
+    @Test
+    public void testDoorDoubleRotationAll() {
+        for (int meta = 0; meta < 16; meta++) {
+            int expected = RotationUtils.rotateDoor90(
+                    RotationUtils.rotateDoor90(meta));
+            assertEquals("meta " + meta,
+                    expected,
+                    RotationUtils.rotateMeta(RotationType.DOOR, 2, meta));
+        }
     }
 
     @Test
