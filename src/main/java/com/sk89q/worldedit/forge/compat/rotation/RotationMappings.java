@@ -1,9 +1,10 @@
-package com.sk89q.worldedit.forge.compat;
+package com.sk89q.worldedit.forge.compat.rotation;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.sk89q.worldedit.forge.compat.rotation.types.*;
 import com.sk89q.worldedit.util.gson.GsonUtil;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockFenceGate;
@@ -11,8 +12,6 @@ import net.minecraft.block.BlockRotatedPillar;
 import net.minecraft.block.BlockStairs;
 import net.minecraft.block.BlockButton;
 import net.minecraft.block.BlockTrapDoor;
-
-import com.sk89q.worldedit.forge.compat.TrapdoorRotation;
 
 import java.io.File;
 import java.io.FileReader;

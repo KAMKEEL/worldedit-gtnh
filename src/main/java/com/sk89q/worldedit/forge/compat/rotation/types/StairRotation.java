@@ -1,4 +1,4 @@
-package com.sk89q.worldedit.forge.compat;
+package com.sk89q.worldedit.forge.compat.rotation.types;
 
 import com.sk89q.worldedit.Vector;
 import com.sk89q.worldedit.math.transform.AffineTransform;
@@ -21,7 +21,7 @@ public class StairRotation implements RotationBase {
     };
 
     private int find(int meta, int[] arr) {
-        for (int i=0;i<arr.length;i++) if (arr[i]==meta) return i; 
+        for (int i=0;i<arr.length;i++) if (arr[i]==meta) return i;
         return -1;
     }
 

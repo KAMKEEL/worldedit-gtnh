@@ -3,12 +3,14 @@ package com.sk89q.worldedit.forge.compat;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.sk89q.worldedit.forge.compat.rotation.types.RotationBase;
+import com.sk89q.worldedit.forge.compat.rotation.RotationMapping;
 import net.minecraft.block.Block;
 import com.sk89q.worldedit.blocks.BaseBlock;
 import com.sk89q.worldedit.extent.transform.BlockTransformHook;
 import com.sk89q.worldedit.math.transform.AffineTransform;
 import com.sk89q.worldedit.math.transform.Transform;
-import com.sk89q.worldedit.forge.compat.RotationMappings;
+import com.sk89q.worldedit.forge.compat.rotation.RotationMappings;
 
 /**
  * Fallback rotation handler for modded stairs, pillars, fence gates and trap doors.

@@ -7,15 +7,13 @@ import java.nio.file.Files;
 import java.util.Map;
 
 import com.google.gson.Gson;
+import com.sk89q.worldedit.forge.compat.rotation.*;
+import com.sk89q.worldedit.forge.compat.rotation.types.FourRotation;
+import com.sk89q.worldedit.forge.compat.rotation.types.PillarRotation;
+import com.sk89q.worldedit.forge.compat.rotation.types.StairRotation;
+import com.sk89q.worldedit.forge.compat.rotation.types.TrapdoorRotation;
 import com.sk89q.worldedit.util.gson.GsonUtil;
 import com.sk89q.worldedit.math.transform.AffineTransform;
-import com.sk89q.worldedit.forge.compat.RotationMappings;
-import com.sk89q.worldedit.forge.compat.RotationUtils;
-import com.sk89q.worldedit.forge.compat.RotationType;
-import com.sk89q.worldedit.forge.compat.StairRotation;
-import com.sk89q.worldedit.forge.compat.PillarRotation;
-import com.sk89q.worldedit.forge.compat.FourRotation;
-import com.sk89q.worldedit.forge.compat.TrapdoorRotation;
 import org.junit.Test;
 
 /** Tests for {@link RotationMappings}. */

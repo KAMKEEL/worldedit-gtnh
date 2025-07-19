@@ -1,4 +1,9 @@
-package com.sk89q.worldedit.forge.compat;
+package com.sk89q.worldedit.forge.compat.rotation;
+
+import com.sk89q.worldedit.forge.compat.rotation.types.FourRotation;
+import com.sk89q.worldedit.forge.compat.rotation.types.PillarRotation;
+import com.sk89q.worldedit.forge.compat.rotation.types.StairRotation;
+import com.sk89q.worldedit.forge.compat.rotation.types.TrapdoorRotation;
 
 import java.util.function.IntUnaryOperator;
 
