@@ -1,0 +1,13 @@
+diff --git a/AsyncWorldEdit/src/main/java/org/primesoft/asyncworldedit/injector/scanner/ClassScanner.java b/AsyncWorldEdit/src/main/java/org/primesoft/asyncworldedit/injector/scanner/ClassScanner.java
+index e3b7a3d..2b9dc58 100644
+--- a/AsyncWorldEdit/src/main/java/org/primesoft/asyncworldedit/injector/scanner/ClassScanner.java
++++ b/AsyncWorldEdit/src/main/java/org/primesoft/asyncworldedit/injector/scanner/ClassScanner.java
+@@ -342,6 +342,8 @@ public abstract class ClassScanner implements IClassScanner {
+             new ClassScannerEntry(YAMLNode.class),
+             new ClassScannerEntry(Field.class),
+             new ClassScannerEntry(Method.class),
++            new ClassScannerEntry(org.objectweb.asm.tree.InsnList.class),
++            new ClassScannerEntry("codechicken.lib.asm.InsnListSection"),
+             new ClassScannerEntry("com.sk89q.wepif.PermissionsResolver"),
+             new ClassScannerEntry(Logger.class),
+             new ClassScannerEntry(Player.class),
