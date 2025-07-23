@@ -181,7 +181,13 @@ public final class RotationUtils {
 
     public static PillarRotation defaultPillar() {
         PillarRotation pr = new PillarRotation();
-        pr.setGroups(new int[][] { { 0, 4, 8 }, { 1, 5, 9 } });
+        pr.setGroups(
+            new int[][] {
+                { 0, 4, 8 },
+                { 1, 5, 9 },
+                { 2, 6, 10 },
+                { 3, 7, 11 }
+            });
         return pr;
     }
 

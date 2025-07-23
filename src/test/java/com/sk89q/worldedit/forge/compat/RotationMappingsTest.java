@@ -216,7 +216,7 @@ public class RotationMappingsTest {
         assertEquals(0, pr.getY());
         assertEquals(4, pr.getX());
         assertEquals(8, pr.getZ());
-        assertEquals(2, pr.getGroups().length);
+        assertEquals(4, pr.getGroups().length);
     }
 
     @Test
