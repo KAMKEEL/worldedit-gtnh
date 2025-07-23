@@ -95,6 +95,7 @@ public class ForgeWorldEdit {
     private ForgeConfiguration config;
     private File workingDir;
     private ForgeMultipartCompat compat = new NoForgeMultipartCompat();
+    private ModRotationBlockTransformHook modRotationHook;
 
     @EventHandler
     public void preInit(FMLPreInitializationEvent event) {
@@ -119,8 +120,9 @@ public class ForgeWorldEdit {
             ForgeWorldData.getInstance()
                 .addBlockTransformHook(new CarpentersBlocksBlockTransformHook());
         }
+        modRotationHook = new ModRotationBlockTransformHook();
         ForgeWorldData.getInstance()
-            .addBlockTransformHook(new ModRotationBlockTransformHook());
+            .addBlockTransformHook(modRotationHook);
 
         FMLCommonHandler.instance()
             .bus()
@@ -325,6 +327,13 @@ public class ForgeWorldEdit {
 
     public ForgeMultipartCompat getFMPCompat() {
         return compat;
+    }
+
+    /**
+     * Get the rotation hook used for mod block transformations.
+     */
+    public ModRotationBlockTransformHook getModRotationHook() {
+        return modRotationHook;
     }
 
     /**
