@@ -22,6 +22,11 @@ public class ModRotationBlockTransformHook implements BlockTransformHook {
 
     private final Map<Integer, RotationMapping> cache = new HashMap<>();
 
+    /** Clear the cached lookups. */
+    public void clearCache() {
+        cache.clear();
+    }
+
     private RotationMapping lookup(int id) {
         if (cache.containsKey(id)) {
             return cache.get(id);
