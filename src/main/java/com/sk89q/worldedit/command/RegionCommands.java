@@ -25,14 +25,19 @@ import static com.sk89q.worldedit.regions.Regions.maximumBlockY;
 import static com.sk89q.worldedit.regions.Regions.minimumBlockY;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import com.sk89q.minecraft.util.commands.Command;
 import com.sk89q.minecraft.util.commands.CommandPermissions;
 import com.sk89q.minecraft.util.commands.Logging;
+import com.sk89q.worldedit.BlockVector2D;
 import com.sk89q.worldedit.EditSession;
+import com.sk89q.worldedit.IncompleteRegionException;
 import com.sk89q.worldedit.LocalSession;
 import com.sk89q.worldedit.Vector;
+import com.sk89q.worldedit.Vector2D;
 import com.sk89q.worldedit.WorldEdit;
 import com.sk89q.worldedit.WorldEditException;
 import com.sk89q.worldedit.blocks.BaseBlock;
@@ -64,6 +69,7 @@ import com.sk89q.worldedit.util.command.binding.Range;
 import com.sk89q.worldedit.util.command.binding.Switch;
 import com.sk89q.worldedit.util.command.binding.Text;
 import com.sk89q.worldedit.util.command.parametric.Optional;
+import com.sk89q.worldedit.world.World;
 
 /**
  * Commands that operate on regions.
@@ -440,6 +446,36 @@ public class RegionCommands {
         Operations.completeLegacy(visitor);
 
         player.print(ground.getAffected() + " flora created.");
+    }
+
+    @Command(
+        aliases = { "/fixlighting" },
+        usage = "",
+        desc = "Fix lighting in a region or around you",
+        min = 0,
+        max = 0)
+    @CommandPermissions("worldedit.light.fix")
+    @Logging(REGION)
+    public void fixLighting(Player player, LocalSession session, EditSession editSession) throws WorldEditException {
+        World world = player.getWorld();
+        Region region;
+        try {
+            region = session.getSelection(world);
+        } catch (IncompleteRegionException e) {
+            Vector pos = player.getPosition();
+            int cx = pos.getBlockX() >> 4;
+            int cz = pos.getBlockZ() >> 4;
+            Vector min = new Vector((cx - 8) * 16, 0, (cz - 8) * 16);
+            Vector max = new Vector((cx + 8) * 16 + 15, world.getMaxY(), (cz + 8) * 16 + 15);
+            region = new CuboidRegion(world, min, max);
+        }
+
+        Set<BlockVector2D> chunks = new HashSet<>();
+        for (Vector2D v : region.getChunks()) {
+            chunks.add(new BlockVector2D(v));
+        }
+        world.fixLighting(chunks);
+        player.print(chunks.size() + " chunk(s) relit.");
     }
 
 }

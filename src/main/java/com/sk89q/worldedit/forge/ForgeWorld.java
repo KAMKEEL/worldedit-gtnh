@@ -59,6 +59,7 @@ import net.minecraft.world.gen.feature.WorldGenTrees;
 import net.minecraft.world.gen.feature.WorldGenerator;
 
 import com.sk89q.jnbt.CompoundTag;
+import com.sk89q.worldedit.BlockVector2D;
 import com.sk89q.worldedit.EditSession;
 import com.sk89q.worldedit.MaxChangedBlocksException;
 import com.sk89q.worldedit.Vector;
@@ -457,6 +458,31 @@ public class ForgeWorld extends AbstractWorld {
                 .equals(getName());
         } else {
             return false;
+        }
+    }
+
+    @Override
+    public void fixLighting(Iterable<BlockVector2D> chunks) {
+        World world = getWorld();
+        int maxY = world.getActualHeight();
+        for (BlockVector2D chunk : chunks) {
+            int cx = chunk.getBlockX();
+            int cz = chunk.getBlockZ();
+            Chunk mcChunk = world.getChunkFromChunkCoords(cx, cz);
+            if (mcChunk == null) {
+                continue;
+            }
+            mcChunk.generateSkylightMap();
+            int bx = cx << 4;
+            int bz = cz << 4;
+            for (int x = 0; x < 16; x++) {
+                for (int z = 0; z < 16; z++) {
+                    for (int y = 0; y < maxY; y++) {
+                        world.func_147451_t(bx + x, y, bz + z);
+                    }
+                }
+            }
+            mcChunk.setChunkModified();
         }
     }
 
