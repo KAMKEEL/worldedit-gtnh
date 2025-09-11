@@ -200,8 +200,8 @@ public class RotationMappingsTest {
     @Test
     public void testPillarUnknownExtraMeta() {
         PillarRotation pr = RotationUtils.defaultPillar();
-        // 6 has x orientation plus unknown bits
-        assertEquals(6, pr.rotate(6, 1));
+        // 6 has x orientation with variant bits; should rotate to z (10)
+        assertEquals(10, pr.rotate(6, 1));
     }
 
     @Test
