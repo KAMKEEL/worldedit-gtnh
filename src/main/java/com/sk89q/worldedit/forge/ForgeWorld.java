@@ -39,6 +39,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.LongHashMap;
 import net.minecraft.world.ChunkCoordIntPair;
+import net.minecraft.world.EnumSkyBlock;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import net.minecraft.world.chunk.Chunk;
@@ -59,6 +60,7 @@ import net.minecraft.world.gen.feature.WorldGenTrees;
 import net.minecraft.world.gen.feature.WorldGenerator;
 
 import com.sk89q.jnbt.CompoundTag;
+import com.sk89q.worldedit.BlockVector2D;
 import com.sk89q.worldedit.EditSession;
 import com.sk89q.worldedit.MaxChangedBlocksException;
 import com.sk89q.worldedit.Vector;
@@ -457,6 +459,48 @@ public class ForgeWorld extends AbstractWorld {
                 .equals(getName());
         } else {
             return false;
+        }
+    }
+
+    @Override
+    public void fixLighting(Iterable<BlockVector2D> chunks) {
+        World world = getWorld();
+        boolean hasSky = !world.provider.hasNoSky;
+        int maxY = world.getActualHeight();
+        for (BlockVector2D chunk : chunks) {
+            int cx = chunk.getBlockX();
+            int cz = chunk.getBlockZ();
+            Chunk mcChunk = world.getChunkFromChunkCoords(cx, cz);
+            if (mcChunk == null) {
+                continue;
+            }
+            mcChunk.generateSkylightMap();
+            int bx = cx << 4;
+            int bz = cz << 4;
+            int topY = mcChunk.getTopFilledSegment();
+            if (topY < 0) {
+                topY = 0;
+            } else {
+                topY += 16;
+                if (topY > maxY) {
+                    topY = maxY;
+                }
+            }
+            for (int x = 0; x < 16; x++) {
+                for (int z = 0; z < 16; z++) {
+                    for (int y = 0; y < topY; y++) {
+                        int wx = bx + x;
+                        int wy = y;
+                        int wz = bz + z;
+                        world.updateLightByType(EnumSkyBlock.Block, wx, wy, wz);
+                        if (hasSky) {
+                            world.updateLightByType(EnumSkyBlock.Sky, wx, wy, wz);
+                        }
+                    }
+                }
+            }
+            world.markBlockRangeForRenderUpdate(bx, 0, bz, bx + 15, topY - 1, bz + 15);
+            mcChunk.setChunkModified();
         }
     }
 

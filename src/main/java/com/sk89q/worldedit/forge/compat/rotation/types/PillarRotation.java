@@ -79,13 +79,14 @@ public class PillarRotation implements RotationBase {
         int s = Math.abs(steps) % 4;
         if (s == 0) return meta;
         int extras = meta & ~mask;
+        int orientation = meta & mask;
         for (int[] g : groups) {
-            if (meta == g[0]) {
+            if (orientation == g[0]) {
                 return g[0] | extras; // vertical unaffected
-            } else if (meta == g[1]) {
+            } else if (orientation == g[1]) {
                 int out = (s % 2 == 1) ? g[2] : g[1];
                 return (out & mask) | extras;
-            } else if (meta == g[2]) {
+            } else if (orientation == g[2]) {
                 int out = (s % 2 == 1) ? g[1] : g[2];
                 return (out & mask) | extras;
             }
