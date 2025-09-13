@@ -205,6 +205,37 @@ public class ForgeWorld extends AbstractWorld {
     }
 
     @Override
+    public int getEmittedLightLevel(Vector position) {
+        checkNotNull(position);
+        World world = getWorld();
+        return world
+            .getSavedLightValue(EnumSkyBlock.Block, position.getBlockX(), position.getBlockY(), position.getBlockZ());
+    }
+
+    @Override
+    public int getSkyLightLevel(Vector position) {
+        checkNotNull(position);
+        World world = getWorld();
+        return world
+            .getSavedLightValue(EnumSkyBlock.Sky, position.getBlockX(), position.getBlockY(), position.getBlockZ());
+    }
+
+    @Override
+    public void setEmittedLightLevel(Vector position, int level) {
+        checkNotNull(position);
+        World world = getWorld();
+        world
+            .setLightValue(EnumSkyBlock.Block, position.getBlockX(), position.getBlockY(), position.getBlockZ(), level);
+    }
+
+    @Override
+    public void setSkyLightLevel(Vector position, int level) {
+        checkNotNull(position);
+        World world = getWorld();
+        world.setLightValue(EnumSkyBlock.Sky, position.getBlockX(), position.getBlockY(), position.getBlockZ(), level);
+    }
+
+    @Override
     public boolean clearContainerBlockContents(Vector position) {
         checkNotNull(position);
         TileEntity tile = getWorld().getTileEntity(position.getBlockX(), position.getBlockY(), position.getBlockZ());
