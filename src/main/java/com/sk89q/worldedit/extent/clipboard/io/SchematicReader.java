@@ -178,6 +178,7 @@ public class SchematicReader implements ClipboardReader {
         if (schematic.containsKey("AddBlocks2")) {
             addId2 = requireTag(schematic, "AddBlocks2", ByteArrayTag.class).getValue();
         }
+
         // Combine the AddBlocks data with the first 8-bit block ID
         for (int index = 0; index < blockId.length; index++) {
             if ((index >> 1) >= addId.length) { // No corresponding AddBlocks index
@@ -259,22 +260,27 @@ public class SchematicReader implements ClipboardReader {
 
                     BaseBlock block = new BaseBlock(
                         blocks[index] & 0xFFFF,
-                        (blockData[index] & 0xFF) + (addData != null ? (addData[index] & 0xFF << 8) : 0));
+                        (blockData[index] & 0xFF) + (addData != null ? ((addData[index] & 0xFF) << 8) : 0));
 
                     if (tileEntitiesMap.containsKey(pt)) {
-                        BiPredicate<CompoundTag, String[]> isItem = (itemTag, idPtr) -> {
-                            // Logic below is intentional to sneak a variable assignment into a boolean return statement
-                            return ((idPtr[0] = "id") != null && itemTag.containsKey("id")
-                                && itemTag.containsKey("Count")
-                                && itemTag.containsKey("Damage"))
-                                || ((idPtr[0] = "Item") != null) && itemTag.containsKey("Item")
+                        final BiPredicate<CompoundTag, String[]> isItem = new BiPredicate<CompoundTag, String[]>() {
+
+                            @Override
+                            public boolean test(CompoundTag itemTag, String[] idPtr) {
+                                boolean c1 = ((idPtr[0] = "id") != null && itemTag.containsKey("id")
                                     && itemTag.containsKey("Count")
-                                    && itemTag.containsKey("Meta")
-                                || ((idPtr[0] = "id") != null) && itemTag.containsKey("id")
+                                    && itemTag.containsKey("Damage"));
+                                boolean c2 = (((idPtr[0] = "Item") != null) && itemTag.containsKey("Item")
+                                    && itemTag.containsKey("Count")
+                                    && itemTag.containsKey("Meta"));
+                                boolean c3 = (((idPtr[0] = "id") != null) && itemTag.containsKey("id")
                                     && itemTag.getValue()
-                                        .get("id") instanceof IntTag;
+                                        .get("id") instanceof IntTag);
+                                return c1 || c2 || c3;
+                            }
                         };
-                        Function<CompoundTag, CompoundTag> convertItems = new Function<CompoundTag, CompoundTag>() {
+
+                        final Function<CompoundTag, CompoundTag> convertItems = new Function<CompoundTag, CompoundTag>() {
 
                             @Override
                             public CompoundTag apply(CompoundTag nbtData) {
@@ -289,7 +295,7 @@ public class SchematicReader implements ClipboardReader {
                                     } else {
                                         id = nbtData.getShort(idPtr[0]);
                                     }
-                                    HashMap<String, Tag> itemMap = new HashMap<>(nbtData.getValue());
+                                    HashMap<String, Tag> itemMap = new HashMap<String, Tag>(nbtData.getValue());
                                     short newId = itemConversionMap.getOrDefault(id, id);
                                     if (id_data != null) {
                                         itemMap.put(idPtr[0], new IntTag(newId + (id_data & 0xFFFF0000)));
@@ -297,24 +303,29 @@ public class SchematicReader implements ClipboardReader {
                                         itemMap.put(idPtr[0], new ShortTag(newId));
                                     }
 
-                                    if (nbtData.containsKey("tag") && itemMap.get("tag") instanceof CompoundTag nbt) {
-                                        itemMap.put("tag", apply(nbt));
+                                    if (nbtData.containsKey("tag") && itemMap.get("tag") instanceof CompoundTag) {
+                                        itemMap.put("tag", apply((CompoundTag) itemMap.get("tag")));
                                     }
 
-                                    if (nbtData.containsKey("d") && itemMap.get("d") instanceof CompoundTag d) {
-                                        itemMap.put("d", apply(d));
+                                    if (nbtData.containsKey("d") && itemMap.get("d") instanceof CompoundTag) {
+                                        itemMap.put("d", apply((CompoundTag) itemMap.get("d")));
                                     }
                                     return nbtData.setValue(itemMap);
                                 } else {
 
-                                    HashMap<String, Tag> nbtMap = new HashMap<>(nbtData.getValue());
+                                    HashMap<String, Tag> nbtMap = new HashMap<String, Tag>(nbtData.getValue());
                                     if (nbtData.containsKey("id") && nbtData.getValue()
-                                        .get("id") instanceof StringTag str
-                                        && "customDoorTileEntity".equals(str.getValue())) {
+                                        .get("id") instanceof StringTag
+                                        && "customDoorTileEntity".equals(
+                                            ((StringTag) nbtData.getValue()
+                                                .get("id")).getValue())) {
 
                                         String key;
+
                                         if (nbtData.containsKey(key = "bottomMaterial") && nbtData.getValue()
-                                            .get(key) instanceof IntTag itag) {
+                                            .get(key) instanceof IntTag) {
+                                            IntTag itag = (IntTag) nbtData.getValue()
+                                                .get(key);
                                             int _id = itag.getValue();
                                             nbtMap.put(
                                                 key,
@@ -322,7 +333,9 @@ public class SchematicReader implements ClipboardReader {
                                         }
 
                                         if (nbtData.containsKey(key = "topMaterial") && nbtData.getValue()
-                                            .get(key) instanceof IntTag itag) {
+                                            .get(key) instanceof IntTag) {
+                                            IntTag itag = (IntTag) nbtData.getValue()
+                                                .get(key);
                                             int _id = itag.getValue();
                                             nbtMap.put(
                                                 key,
@@ -330,7 +343,9 @@ public class SchematicReader implements ClipboardReader {
                                         }
 
                                         if (nbtData.containsKey(key = "frame") && nbtData.getValue()
-                                            .get(key) instanceof IntTag itag) {
+                                            .get(key) instanceof IntTag) {
+                                            IntTag itag = (IntTag) nbtData.getValue()
+                                                .get(key);
                                             int _id = itag.getValue();
                                             nbtMap.put(
                                                 key,
@@ -338,7 +353,9 @@ public class SchematicReader implements ClipboardReader {
                                         }
 
                                         if (nbtData.containsKey(key = "block") && nbtData.getValue()
-                                            .get(key) instanceof IntTag itag) {
+                                            .get(key) instanceof IntTag) {
+                                            IntTag itag = (IntTag) nbtData.getValue()
+                                                .get(key);
                                             int _id = itag.getValue();
                                             nbtMap.put(
                                                 key,
@@ -346,7 +363,9 @@ public class SchematicReader implements ClipboardReader {
                                         }
 
                                         if (nbtData.containsKey(key = "item") && nbtData.getValue()
-                                            .get(key) instanceof IntTag itag) {
+                                            .get(key) instanceof IntTag) {
+                                            IntTag itag = (IntTag) nbtData.getValue()
+                                                .get(key);
                                             int _id = itag.getValue();
                                             nbtMap.put(
                                                 key,
@@ -355,18 +374,19 @@ public class SchematicReader implements ClipboardReader {
                                     }
 
                                     for (String key : nbtMap.keySet()) {
-                                        {
-                                            if (nbtMap.get(key) instanceof ListTag inventoryTag) {
-                                                ArrayList<Tag> inventoryList = new ArrayList<>(inventoryTag.getValue());
-                                                for (int i = 0; i < inventoryList.size(); i++) {
-                                                    if (inventoryList.get(i) instanceof CompoundTag itemTag) {
-                                                        inventoryList.set(i, apply(itemTag));
-                                                    }
+                                        Object v = nbtMap.get(key);
+                                        if (v instanceof ListTag) {
+                                            ListTag inventoryTag = (ListTag) v;
+                                            ArrayList<Tag> inventoryList = new ArrayList<Tag>(inventoryTag.getValue());
+                                            for (int i = 0; i < inventoryList.size(); i++) {
+                                                Tag t2 = inventoryList.get(i);
+                                                if (t2 instanceof CompoundTag) {
+                                                    inventoryList.set(i, apply((CompoundTag) t2));
                                                 }
-                                                nbtMap.put(key, inventoryTag.setValue(inventoryList));
-                                            } else if (nbtMap.get(key) instanceof CompoundTag itemTag) {
-                                                nbtMap.put(key, apply(itemTag));
                                             }
+                                            nbtMap.put(key, inventoryTag.setValue(inventoryList));
+                                        } else if (v instanceof CompoundTag) {
+                                            nbtMap.put(key, apply((CompoundTag) v));
                                         }
                                     }
                                     return nbtData.setValue(nbtMap);
@@ -398,6 +418,7 @@ public class SchematicReader implements ClipboardReader {
                                     e);
                                 break;
                             default:
+                                // no-op
                         }
 
                         failedBlockSets++;
