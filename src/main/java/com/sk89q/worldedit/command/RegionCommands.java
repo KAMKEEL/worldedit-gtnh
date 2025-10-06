@@ -28,7 +28,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import com.google.common.collect.Iterables;
 import com.sk89q.minecraft.util.commands.Command;
 import com.sk89q.minecraft.util.commands.CommandPermissions;
 import com.sk89q.minecraft.util.commands.Logging;
@@ -69,6 +68,7 @@ import com.sk89q.worldedit.util.command.binding.Range;
 import com.sk89q.worldedit.util.command.binding.Switch;
 import com.sk89q.worldedit.util.command.binding.Text;
 import com.sk89q.worldedit.util.command.parametric.Optional;
+import com.sk89q.worldedit.util.lighting.LightingScheduler;
 import com.sk89q.worldedit.world.World;
 
 /**
@@ -471,8 +471,29 @@ public class RegionCommands {
         }
 
         Set<Vector2D> chunkVectors = region.getChunks();
-        world.fixLighting(Iterables.transform(chunkVectors, BlockVector2D::new));
-        player.print(chunkVectors.size() + " chunk(s) relit.");
+        List<BlockVector2D> chunks = new ArrayList<BlockVector2D>(chunkVectors.size());
+        for (Vector2D vector : chunkVectors) {
+            chunks.add(new BlockVector2D(vector));
+        }
+
+        LightingScheduler scheduler = WorldEdit.getInstance()
+            .getLightingScheduler();
+        boolean scheduled = scheduler.schedule(world, chunks, player, new Runnable() {
+
+            @Override
+            public void run() {
+                player.print("Lighting Fixed. You may need to reload chunks.");
+            }
+        });
+
+        if (!scheduled) {
+            player.print("A lighting fix is already running. Please wait for it to finish.");
+            return;
+        }
+
+        if (!chunks.isEmpty()) {
+            player.print(chunks.size() + " chunk(s) queued for relight.");
+        }
     }
 
     @Command(

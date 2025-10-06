@@ -50,6 +50,7 @@ import com.sk89q.worldedit.forge.compat.ModRotationBlockTransformHook;
 import com.sk89q.worldedit.forge.compat.NoForgeMultipartCompat;
 import com.sk89q.worldedit.forge.compat.rotation.RotationMappings;
 import com.sk89q.worldedit.internal.LocalWorldAdapter;
+import com.sk89q.worldedit.util.lighting.LightingScheduler;
 
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.Loader;
@@ -96,6 +97,8 @@ public class ForgeWorldEdit {
     private File workingDir;
     private ForgeMultipartCompat compat = new NoForgeMultipartCompat();
     private ModRotationBlockTransformHook modRotationHook;
+    private ForgeLightingScheduler lightingScheduler;
+    private LightingScheduler previousLightingScheduler;
 
     @EventHandler
     public void preInit(FMLPreInitializationEvent event) {
@@ -162,10 +165,27 @@ public class ForgeWorldEdit {
             .getPlatformManager()
             .register(platform);
         this.provider = new ForgePermissionsProvider.VanillaPermissionsProvider(platform);
+
+        previousLightingScheduler = WorldEdit.getInstance()
+            .getLightingScheduler();
+        lightingScheduler = new ForgeLightingScheduler();
+        WorldEdit.getInstance()
+            .setLightingScheduler(lightingScheduler);
     }
 
     @EventHandler
     public void serverStopping(FMLServerStoppingEvent event) {
+        if (lightingScheduler != null) {
+            lightingScheduler.shutdown();
+            lightingScheduler = null;
+        }
+
+        if (previousLightingScheduler != null) {
+            WorldEdit.getInstance()
+                .setLightingScheduler(previousLightingScheduler);
+            previousLightingScheduler = null;
+        }
+
         WorldEdit.getInstance()
             .getPlatformManager()
             .unregister(platform);
