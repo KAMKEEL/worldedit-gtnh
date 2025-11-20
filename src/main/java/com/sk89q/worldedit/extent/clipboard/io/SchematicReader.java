@@ -167,7 +167,6 @@ public class SchematicReader implements ClipboardReader {
 
         byte[] addId = new byte[0];
         byte[] addId2 = new byte[0];
-        short[] blocks = new short[blockId.length]; // Have to later combine IDs
 
         // We support 4096 block IDs using the same method as vanilla Minecraft, where
         // the highest 4 bits are stored in a separate byte array.
@@ -179,28 +178,7 @@ public class SchematicReader implements ClipboardReader {
             addId2 = requireTag(schematic, "AddBlocks2", ByteArrayTag.class).getValue();
         }
 
-        // Combine the AddBlocks data with the first 8-bit block ID
-        for (int index = 0; index < blockId.length; index++) {
-            if ((index >> 1) >= addId.length) { // No corresponding AddBlocks index
-                blocks[index] = (short) (blockId[index] & 0xFF);
-            } else {
-                if ((index & 1) == 0) {
-                    blocks[index] = (short) (((addId[index >> 1] & 0x0F) << 8) + (blockId[index] & 0xFF));
-                } else {
-                    blocks[index] = (short) (((addId[index >> 1] & 0xF0) << 4) + (blockId[index] & 0xFF));
-                }
-            }
-        }
-
-        for (int index = 0; index < blockId.length; index++) {
-            if ((index >> 1) < addId2.length) { // No corresponding AddBlocks2 index
-                if ((index & 1) == 0) {
-                    blocks[index] = (short) (((addId2[index >> 1] & 0x0F) << 8) + (blocks[index] & 0xFFF));
-                } else {
-                    blocks[index] = (short) (((addId2[index >> 1] & 0xF0) << 4) + (blocks[index] & 0xFFF));
-                }
-            }
-        }
+        short[] blocks = combineBlockIds(blockId, addId, addId2);
 
         // Need to pull out tile entities
         List<Tag> tileEntities = requireTag(schematic, "TileEntities", ListTag.class).getValue();
@@ -451,6 +429,38 @@ public class SchematicReader implements ClipboardReader {
         }
 
         return clipboard;
+    }
+
+    static short[] combineBlockIds(byte[] blockId, @Nullable byte[] addId, @Nullable byte[] addId2) {
+        byte[] addIdSafe = addId != null ? addId : new byte[0];
+        byte[] addId2Safe = addId2 != null ? addId2 : new byte[0];
+
+        short[] blocks = new short[blockId.length];
+
+        // Combine the AddBlocks data with the first 8-bit block ID
+        for (int index = 0; index < blockId.length; index++) {
+            if ((index >> 1) >= addIdSafe.length) { // No corresponding AddBlocks index
+                blocks[index] = (short) (blockId[index] & 0xFF);
+            } else {
+                if ((index & 1) == 0) {
+                    blocks[index] = (short) (((addIdSafe[index >> 1] & 0x0F) << 8) + (blockId[index] & 0xFF));
+                } else {
+                    blocks[index] = (short) (((addIdSafe[index >> 1] & 0xF0) << 4) + (blockId[index] & 0xFF));
+                }
+            }
+        }
+
+        for (int index = 0; index < blockId.length; index++) {
+            if ((index >> 1) < addId2Safe.length) { // No corresponding AddBlocks2 index
+                if ((index & 1) == 0) {
+                    blocks[index] = (short) (((addId2Safe[index >> 1] & 0x0F) << 12) + (blocks[index] & 0xFFF));
+                } else {
+                    blocks[index] = (short) (((addId2Safe[index >> 1] & 0xF0) << 8) + (blocks[index] & 0xFFF));
+                }
+            }
+        }
+
+        return blocks;
     }
 
     private static <T extends Tag> T requireTag(Map<String, Tag> items, String key, Class<T> expected)
