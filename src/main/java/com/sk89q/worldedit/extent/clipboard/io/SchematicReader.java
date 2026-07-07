@@ -107,29 +107,33 @@ public class SchematicReader implements ClipboardReader {
         short height = requireTag(schematic, "Height", ShortTag.class).getValue();
         short length = requireTag(schematic, "Length", ShortTag.class).getValue();
 
+        // Read WEOrigin and WEOffset independently so the paste anchor is
+        // honoured even when only WEOffset is present (e.g. converted schems).
+        Vector min;
         try {
             int originX = requireTag(schematic, "WEOriginX", IntTag.class).getValue();
             int originY = requireTag(schematic, "WEOriginY", IntTag.class).getValue();
             int originZ = requireTag(schematic, "WEOriginZ", IntTag.class).getValue();
-            Vector min = new Vector(originX, originY, originZ);
+            min = new Vector(originX, originY, originZ);
+        } catch (IOException ignored) {
+            min = new Vector(0, 0, 0);
+        }
 
+        Vector offset;
+        try {
             int offsetX = requireTag(schematic, "WEOffsetX", IntTag.class).getValue();
             int offsetY = requireTag(schematic, "WEOffsetY", IntTag.class).getValue();
             int offsetZ = requireTag(schematic, "WEOffsetZ", IntTag.class).getValue();
-            Vector offset = new Vector(offsetX, offsetY, offsetZ);
-
-            origin = min.subtract(offset);
-            region = new CuboidRegion(
-                min,
-                min.add(width, height, length)
-                    .subtract(Vector.ONE));
+            offset = new Vector(offsetX, offsetY, offsetZ);
         } catch (IOException ignored) {
-            origin = new Vector(0, 0, 0);
-            region = new CuboidRegion(
-                origin,
-                origin.add(width, height, length)
-                    .subtract(Vector.ONE));
+            offset = new Vector(0, 0, 0);
         }
+
+        origin = min.subtract(offset);
+        region = new CuboidRegion(
+            min,
+            min.add(width, height, length)
+                .subtract(Vector.ONE));
 
         // ====================================================================
         // Blocks
