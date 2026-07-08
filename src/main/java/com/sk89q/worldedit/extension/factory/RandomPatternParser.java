@@ -16,15 +16,22 @@
 
 package com.sk89q.worldedit.extension.factory;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.sk89q.worldedit.WorldEdit;
-import com.sk89q.worldedit.blocks.BaseBlock;
 import com.sk89q.worldedit.extension.input.InputParseException;
 import com.sk89q.worldedit.extension.input.ParserContext;
-import com.sk89q.worldedit.function.pattern.BlockPattern;
 import com.sk89q.worldedit.function.pattern.Pattern;
 import com.sk89q.worldedit.function.pattern.RandomPattern;
 import com.sk89q.worldedit.internal.registry.InputParser;
 
+/**
+ * Parses comma separated weighted pattern lists such as
+ * {@code 70%stone,25%andesite,5%mossy_cobblestone}. Every entry may itself be
+ * any pattern, so nested forms like {@code 70%#id[134],30%stone} work, and
+ * commas inside brackets do not split the list.
+ */
 class RandomPatternParser extends InputParser<Pattern> {
 
     RandomPatternParser(WorldEdit worldEdit) {
@@ -33,32 +40,71 @@ class RandomPatternParser extends InputParser<Pattern> {
 
     @Override
     public Pattern parseFromInput(String input, ParserContext context) throws InputParseException {
-        BlockFactory blockRegistry = worldEdit.getBlockFactory();
+        List<String> tokens = splitTopLevel(input);
+
+        // Single entries without a weight belong to the other parsers
+        if (tokens.size() == 1 && !hasWeightPrefix(tokens.get(0))) {
+            return null;
+        }
+
         RandomPattern randomPattern = new RandomPattern();
 
-        for (String token : input.split(",")) {
-            BaseBlock block;
-
-            double chance;
-
-            // Parse special percentage syntax
-            if (token.matches("[0-9]+(\\.[0-9]*)?%.*")) {
-                String[] p = token.split("%");
-
-                if (p.length < 2) {
-                    throw new InputParseException("Missing the type after the % symbol for '" + input + "'");
-                } else {
-                    chance = Double.parseDouble(p[0]);
-                    block = blockRegistry.parseFromInput(p[1], context);
-                }
-            } else {
-                chance = 1;
-                block = blockRegistry.parseFromInput(token, context);
+        for (String token : tokens) {
+            if (token.isEmpty()) {
+                throw new InputParseException("Empty entry in the pattern list '" + input + "'");
             }
 
-            randomPattern.add(new BlockPattern(block), chance);
+            double chance = 1;
+            String part = token;
+
+            if (hasWeightPrefix(token)) {
+                int percent = token.indexOf('%');
+                if (percent == token.length() - 1) {
+                    throw new InputParseException("Missing the pattern after the % symbol for '" + input + "'");
+                }
+                chance = Double.parseDouble(token.substring(0, percent));
+                part = token.substring(percent + 1);
+            }
+
+            randomPattern.add(
+                worldEdit.getPatternFactory()
+                    .parseFromInput(part, context),
+                chance);
         }
 
         return randomPattern;
     }
+
+    /**
+     * Whether the token starts with a numeric weight prefix such as {@code 70%}.
+     */
+    static boolean hasWeightPrefix(String token) {
+        return token.matches("[0-9]+(\\.[0-9]*)?%.*");
+    }
+
+    /**
+     * Split on commas that are not inside square brackets, so bracketed inner
+     * patterns like {@code #id[a,b]} stay intact.
+     */
+    static List<String> splitTopLevel(String input) {
+        List<String> parts = new ArrayList<String>();
+        int depth = 0;
+        int start = 0;
+
+        for (int i = 0; i < input.length(); i++) {
+            char c = input.charAt(i);
+            if (c == '[') {
+                depth++;
+            } else if (c == ']') {
+                depth = Math.max(0, depth - 1);
+            } else if (c == ',' && depth == 0) {
+                parts.add(input.substring(start, i));
+                start = i + 1;
+            }
+        }
+
+        parts.add(input.substring(start));
+        return parts;
+    }
+
 }

@@ -62,18 +62,16 @@ public class BaseBlock extends Block implements TileEntityBlock {
 
     /**
      * Indicates the highest possible block ID (inclusive) that can be used.
-     * This value is subject to change depending on the implementation, but
-     * internally this class only supports a range of 4096 IDs (for space
-     * reasons), which coincides with the number of possible IDs that official
-     * Minecraft supports as of version 1.7.
+     * Raised beyond the vanilla 4095 limit to support NotEnoughIDs block IDs
+     * on 1.7.10, bounded by the internal short storage.
      */
-    public final static int MAX_ID = 4095;
+    public final static int MAX_ID = 32767;
 
     /**
-     * Indicates the maximum data value (inclusive) that can be used. A future
-     * version of Minecraft may abolish block data values.
+     * Indicates the maximum data value (inclusive) that can be used. Raised
+     * beyond the vanilla 15 limit to support extended data values (AddData).
      */
-    public static int MAX_DATA = 15;
+    public static int MAX_DATA = 32767;
 
     // Instances of this class should be _as small as possible_ because there will
     // be millions of instances of this object.

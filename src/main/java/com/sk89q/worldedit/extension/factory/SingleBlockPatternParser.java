@@ -31,6 +31,11 @@ class SingleBlockPatternParser extends InputParser<Pattern> {
 
     @Override
     public Pattern parseFromInput(String input, ParserContext context) throws InputParseException {
+        // Weighted entries such as "50%stone" belong to the random pattern parser
+        if (RandomPatternParser.hasWeightPrefix(input)) {
+            return null;
+        }
+
         String[] items = input.split(",");
 
         if (items.length == 1) {

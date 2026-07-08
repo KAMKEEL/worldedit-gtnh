@@ -23,6 +23,8 @@ import com.sk89q.worldedit.extension.input.InputParseException;
 import com.sk89q.worldedit.extension.input.ParserContext;
 import com.sk89q.worldedit.extent.clipboard.Clipboard;
 import com.sk89q.worldedit.function.pattern.ClipboardPattern;
+import com.sk89q.worldedit.function.pattern.DataPattern;
+import com.sk89q.worldedit.function.pattern.IdPattern;
 import com.sk89q.worldedit.function.pattern.Pattern;
 import com.sk89q.worldedit.internal.registry.InputParser;
 import com.sk89q.worldedit.session.ClipboardHolder;
@@ -35,11 +37,11 @@ class HashTagPatternParser extends InputParser<Pattern> {
 
     @Override
     public Pattern parseFromInput(String input, ParserContext context) throws InputParseException {
-        if (input.charAt(0) == '#') {
-            if (!input.equals("#clipboard") && !input.equals("#copy")) {
-                throw new InputParseException("#clipboard or #copy is acceptable for patterns starting with #");
-            }
+        if (input.isEmpty() || input.charAt(0) != '#') {
+            return null;
+        }
 
+        if (input.equals("#clipboard") || input.equals("#copy")) {
             LocalSession session = context.requireSession();
 
             if (session != null) {
@@ -53,9 +55,37 @@ class HashTagPatternParser extends InputParser<Pattern> {
             } else {
                 throw new InputParseException("No session is available, so no clipboard is available");
             }
-        } else {
-            return null;
         }
+
+        if (input.startsWith("#id[")) {
+            Pattern inner = parseBracketPattern(input, "#id", context);
+            return new IdPattern(context.getExtent(), inner);
+        }
+
+        if (input.startsWith("#data[")) {
+            Pattern inner = parseBracketPattern(input, "#data", context);
+            return new DataPattern(context.getExtent(), inner);
+        }
+
+        throw new InputParseException(
+            "Unknown pattern '" + input + "'. Available: #clipboard, #id[pattern], #data[pattern]");
+    }
+
+    /**
+     * Parse the inner pattern of a bracketed form such as {@code #id[pattern]}.
+     */
+    private Pattern parseBracketPattern(String input, String name, ParserContext context) throws InputParseException {
+        if (!input.endsWith("]")) {
+            throw new InputParseException(name + " must be used as " + name + "[pattern]");
+        }
+
+        String inner = input.substring(name.length() + 1, input.length() - 1);
+        if (inner.isEmpty()) {
+            throw new InputParseException(name + " requires an inner pattern, e.g. " + name + "[stone]");
+        }
+
+        return worldEdit.getPatternFactory()
+            .parseFromInput(inner, context);
     }
 
 }
