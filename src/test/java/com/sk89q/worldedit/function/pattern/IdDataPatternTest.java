@@ -23,6 +23,7 @@ import static org.junit.Assert.assertNull;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -43,11 +44,25 @@ public class IdDataPatternTest {
     private static final Vector POS = new Vector(1, 1, 1);
 
     private BlockArrayClipboard extent;
+    private int previousMaxId;
+    private int previousMaxData;
 
     @Before
     public void setUp() {
         extent = new BlockArrayClipboard(new CuboidRegion(new Vector(0, 0, 0), new Vector(2, 2, 2)));
         Request.reset();
+        // Simulate the NotEnoughIDs cap raise applied by ForgeWorldEdit on
+        // servers with the neid mod installed
+        previousMaxId = BaseBlock.MAX_ID;
+        previousMaxData = BaseBlock.MAX_DATA;
+        BaseBlock.MAX_ID = Short.MAX_VALUE;
+        BaseBlock.MAX_DATA = (1 << 16) - 1;
+    }
+
+    @After
+    public void tearDown() {
+        BaseBlock.MAX_ID = previousMaxId;
+        BaseBlock.MAX_DATA = previousMaxData;
     }
 
     private static CompoundTag tag(String marker) {

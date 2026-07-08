@@ -132,6 +132,9 @@ public class ForgeWorldEdit {
             .register(ThreadSafeCache.getInstance());
 
         if (Loader.isModLoaded("neid")) {
+            // NotEnoughIDs extends block IDs past 4095, BaseBlock stores the
+            // ID as a short so Short.MAX_VALUE is the ceiling
+            BaseBlock.MAX_ID = Short.MAX_VALUE;
             BaseBlock.MAX_DATA = (1 << 16) - 1;
         }
     }

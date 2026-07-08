@@ -62,16 +62,16 @@ public class BaseBlock extends Block implements TileEntityBlock {
 
     /**
      * Indicates the highest possible block ID (inclusive) that can be used.
-     * Raised beyond the vanilla 4095 limit to support NotEnoughIDs block IDs
-     * on 1.7.10, bounded by the internal short storage.
+     * Raised at startup when NotEnoughIDs is installed (see ForgeWorldEdit),
+     * bounded by the internal short storage.
      */
-    public final static int MAX_ID = 32767;
+    public static int MAX_ID = 4095;
 
     /**
      * Indicates the maximum data value (inclusive) that can be used. Raised
-     * beyond the vanilla 15 limit to support extended data values (AddData).
+     * at startup when NotEnoughIDs is installed (see ForgeWorldEdit).
      */
-    public static int MAX_DATA = 32767;
+    public static int MAX_DATA = 15;
 
     // Instances of this class should be _as small as possible_ because there will
     // be millions of instances of this object.
