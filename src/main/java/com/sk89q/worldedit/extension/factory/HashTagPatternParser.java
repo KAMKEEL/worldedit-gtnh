@@ -24,6 +24,7 @@ import com.sk89q.worldedit.extension.input.ParserContext;
 import com.sk89q.worldedit.extent.clipboard.Clipboard;
 import com.sk89q.worldedit.function.pattern.ClipboardPattern;
 import com.sk89q.worldedit.function.pattern.DataPattern;
+import com.sk89q.worldedit.function.pattern.ExistingPattern;
 import com.sk89q.worldedit.function.pattern.IdPattern;
 import com.sk89q.worldedit.function.pattern.Pattern;
 import com.sk89q.worldedit.internal.registry.InputParser;
@@ -37,7 +38,32 @@ class HashTagPatternParser extends InputParser<Pattern> {
 
     @Override
     public Pattern parseFromInput(String input, ParserContext context) throws InputParseException {
-        if (input.isEmpty() || input.charAt(0) != '#') {
+        if (input.isEmpty()) {
+            return null;
+        }
+
+        // ^pattern is shorthand for #id[pattern]: keep the existing data
+        // value and only change the block ID
+        if (input.charAt(0) == '^') {
+            String inner = input.substring(1);
+            if (inner.startsWith("[") && inner.endsWith("]")) {
+                inner = inner.substring(1, inner.length() - 1);
+            }
+            if (inner.isEmpty()) {
+                throw new InputParseException("^ requires a pattern, e.g. ^dark_oak_stairs");
+            }
+            return new IdPattern(
+                context.getExtent(),
+                worldEdit.getPatternFactory()
+                    .parseFromInput(inner, context));
+        }
+
+        // * keeps the block that is already there
+        if (input.equals("*") || input.equals("#existing") || input.equals("#*")) {
+            return new ExistingPattern(context.getExtent());
+        }
+
+        if (input.charAt(0) != '#') {
             return null;
         }
 
@@ -68,7 +94,9 @@ class HashTagPatternParser extends InputParser<Pattern> {
         }
 
         throw new InputParseException(
-            "Unknown pattern '" + input + "'. Available: #clipboard, #id[pattern], #data[pattern]");
+            "Unknown pattern '" + input
+                + "'. Available: #clipboard, #existing, "
+                + "#id[pattern], #data[pattern], ^pattern, *");
     }
 
     /**

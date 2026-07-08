@@ -176,7 +176,15 @@ class DefaultBlockParser extends InputParser<BaseBlock> {
         if (parseDataValue) { // Block data not yet detected
             // Parse the block data (optional)
             try {
-                if (typeAndData.length > 1 && !typeAndData[1].isEmpty()) {
+                if (typeAndData.length > 1 && "*".equals(typeAndData[1])) {
+                    // Explicit wildcard data value, matches any data
+                    if (!context.isPreferringWildcard()) {
+                        throw new InputParseException(
+                            "The data wildcard '*' can only be used where blocks are matched, "
+                                + "e.g. the from side of //replace");
+                    }
+                    data = -1;
+                } else if (typeAndData.length > 1 && !typeAndData[1].isEmpty()) {
                     data = Integer.parseInt(typeAndData[1]);
                 }
 
