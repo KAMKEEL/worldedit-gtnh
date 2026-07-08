@@ -2,10 +2,12 @@ package com.sk89q.worldedit.forge.compat.rotation;
 
 import java.util.function.IntUnaryOperator;
 
+import com.sk89q.worldedit.Vector;
 import com.sk89q.worldedit.forge.compat.rotation.types.FourRotation;
 import com.sk89q.worldedit.forge.compat.rotation.types.PillarRotation;
 import com.sk89q.worldedit.forge.compat.rotation.types.StairRotation;
 import com.sk89q.worldedit.forge.compat.rotation.types.TrapdoorRotation;
+import com.sk89q.worldedit.math.transform.AffineTransform;
 
 /**
  * Utility methods for rotation mappings.
@@ -13,6 +15,21 @@ import com.sk89q.worldedit.forge.compat.rotation.types.TrapdoorRotation;
 public final class RotationUtils {
 
     private RotationUtils() {}
+
+    /**
+     * Transform a direction vector through the given transform (ignoring translation).
+     */
+    public static Vector transformDirection(AffineTransform transform, Vector direction) {
+        return transform.apply(direction)
+            .subtract(transform.apply(Vector.ZERO));
+    }
+
+    /**
+     * Whether the transform turns the world upside down (e.g. //flip up/down).
+     */
+    public static boolean flipsVertically(AffineTransform transform) {
+        return transformDirection(transform, new Vector(0, 1, 0)).getY() < 0;
+    }
 
     public static int rotatePillar90(int data) {
         int axis = data & 0xC;

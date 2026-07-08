@@ -1,5 +1,7 @@
 package com.sk89q.worldedit.forge.compat.rotation.types;
 
+import com.sk89q.worldedit.Vector;
+import com.sk89q.worldedit.forge.compat.rotation.RotationUtils;
 import com.sk89q.worldedit.math.transform.AffineTransform;
 
 /**
@@ -94,12 +96,41 @@ public class PillarRotation implements RotationBase {
         return meta;
     }
 
+    /**
+     * Axis directions in group order [y, x, z].
+     */
+    private static final Vector[] AXES = { new Vector(0, 1, 0), new Vector(1, 0, 0), new Vector(0, 0, 1) };
+
     @Override
     public int transform(int meta, AffineTransform transform) {
-        return rotate(
-            meta,
-            Math.round(
-                (float) (-transform.getRotations()
-                    .getY() / 90)));
+        int extras = meta & ~mask;
+        int orientation = meta & mask;
+        for (int[] g : groups) {
+            int axis = -1;
+            for (int i = 0; i < 3; i++) {
+                if ((g[i] & mask) == orientation) {
+                    axis = i;
+                    break;
+                }
+            }
+            if (axis == -1) continue;
+
+            // Project the pillar axis through the transform and pick the nearest
+            // axis by absolute dot product, which handles rotations and flips
+            Vector out = RotationUtils.transformDirection(transform, AXES[axis]);
+            int bestAxis = axis;
+            double best = -1;
+            for (int i = 0; i < 3; i++) {
+                double dot = Math.abs(
+                    AXES[i].normalize()
+                        .dot(out));
+                if (dot > best) {
+                    best = dot;
+                    bestAxis = i;
+                }
+            }
+            return (g[bestAxis] & mask) | extras;
+        }
+        return meta;
     }
 }

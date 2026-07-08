@@ -1,6 +1,7 @@
 package com.sk89q.worldedit.forge.compat.rotation.types;
 
 import com.sk89q.worldedit.Vector;
+import com.sk89q.worldedit.forge.compat.rotation.RotationUtils;
 import com.sk89q.worldedit.math.transform.AffineTransform;
 
 /**
@@ -78,6 +79,10 @@ public class StairRotation implements RotationBase {
                 best = dot;
                 bestIdx = i;
             }
+        }
+        // Vertical flips swap regular and upside-down stairs
+        if (RotationUtils.flipsVertically(transform)) {
+            arr = (arr == bottom) ? top : bottom;
         }
         int result = arr[bestIdx];
         return big ? result + 8 : result;
