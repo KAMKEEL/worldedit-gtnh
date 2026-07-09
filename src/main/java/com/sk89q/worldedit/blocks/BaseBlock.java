@@ -143,8 +143,16 @@ public class BaseBlock extends Block implements TileEntityBlock {
      * @param id block id (between 0 and {@link #MAX_ID}).
      */
     protected final void internalSetId(int id) {
-        if (id > MAX_ID) {
-            throw new IllegalArgumentException("Can't have a block ID above " + MAX_ID + " (" + id + " given)");
+        // The NotEnoughIDs coremod (WorldEditBaseBlock transformer) patches
+        // this method at class load: it REQUIRES an int constant 4095 in the
+        // bytecode (hard AsmTransformException otherwise, which prevents the
+        // server from starting) and rewrites every occurrence, plus the first
+        // "4095" inside a string constant, to its raised cap. Keep the
+        // literals below in exactly this shape. The runtime MAX_ID raise
+        // (see ForgeWorldEdit) and the transformer agree on the same ceiling.
+        int cap = MAX_ID > 4095 ? MAX_ID : 4095;
+        if (id > cap) {
+            throw new IllegalArgumentException("Can't have a block ID above 4095 (" + id + " given)");
         }
 
         if (id < 0) {
